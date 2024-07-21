@@ -17,7 +17,7 @@ import yt_dlp
 
 class StoreHandler (BaseHTTPRequestHandler): 
   def do_GET (self) : 
-    if self.path == '/gettube': 
+    if  '/gettube' in self.path :: 
               url = self.path[8:]
               self.send_response (200) 
               self.send_header('Content-type', 'text/html') 
