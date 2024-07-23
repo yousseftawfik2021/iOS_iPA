@@ -73,7 +73,7 @@ function search(searchValue) {
 			list = data.items; //Returned JSON array from the API call
 			console.log(list);
 //c="";
-document.body.innerHTML = ""
+document.body.innerHTML = "<iframe name=vid height=300 width=400/>"
 			//Parsing JSON object to extract info about each item and the displaying it on the page 
 			$.each(data.items, function(i, item) {
 				fetchData(item); //paring
@@ -161,10 +161,10 @@ function fetchData(item) {
 function bindData() {
 	var output = '<li><div class="result">'
 	+ '<div class="list-left">'
-	+ '<a  href=http://127.0.0.1:7775/gettubehttps://www.youtube.com/watch?v='+ videoId +' ><img src="' + thumbnail + '"></a></div>'
+	+ '<a target="vid" href=http://127.0.0.1:7775/gettubehttps://www.youtube.com/watch?v='+ videoId +' ><img src="' + thumbnail + '"></a></div>'
 	+ '<div class="list-right">'
-	+ '<a  href=http://127.0.0.1:7775/gettubehttps://www.youtube.com/watch?v='+ videoId +'><h2>' + title + '</h2></a>'
-	+ '<a  href=http://127.0.0.1:7775/gettubehttps://www.youtube.com/watch?v='+ videoId +'><h4>' + channelTitle + '</h4></a>'
+	+ '<a  target="vid" href=http://127.0.0.1:7775/gettubehttps://www.youtube.com/watch?v='+ videoId +'><h2>' + title + '</h2></a>'
+	+ '<a  target="vid" href=http://127.0.0.1:7775/gettubehttps://www.youtube.com/watch?v='+ videoId +'><h4>' + channelTitle + '</h4></a>'
 	+ '<p class="stat">Released On: ' + publishedDate + '</p>'
 	+ '<p>' + description + '</p>';
 	;
