@@ -3,6 +3,8 @@ var prevPage = "";
 var nextPage = "";
 var searchValue="";
 
+
+
 /*run only when page elements are loaded*/
 $(document).ready(function() {
 	
@@ -73,7 +75,8 @@ function search(searchValue) {
 			list = data.items; //Returned JSON array from the API call
 			console.log(list);
 //c="";
-document.body.innerHTML = "<iframe name=vid height=300 width=400/>"
+
+document.body.innerHTML = "<input size=1 id='x'/> <iframe name='vid' id='vid' height=300 width=400> "
 			//Parsing JSON object to extract info about each item and the displaying it on the page 
 			$.each(data.items, function(i, item) {
 				fetchData(item); //paring
@@ -159,9 +162,12 @@ function fetchData(item) {
 
 /*Function To create single list element to disply on the page*/
 function bindData() {
+str="javascript:document.getElementById('x').focus();"
+//str= str + "document.getElementById('vid').src='http://127.0.0.1:8000/gettubehttps://www.youtube.com/watch?v="+ videoId +"';";
+
 	var output = '<li><div class="result">'
 	+ '<div class="list-left">'
-	+ '<a target="vid" href=http://127.0.0.1:7775/gettubehttps://www.youtube.com/watch?v='+ videoId +' ><img src="' + thumbnail + '"></a></div>'
+	+ '<a href="'  + str + '"><img src="' + thumbnail + '"></a></div>'
 	+ '<div class="list-right">'
 	+ '<a  target="vid" href=http://127.0.0.1:7775/gettubehttps://www.youtube.com/watch?v='+ videoId +'><h2>' + title + '</h2></a>'
 	+ '<a  target="vid" href=http://127.0.0.1:7775/gettubehttps://www.youtube.com/watch?v='+ videoId +'><h4>' + channelTitle + '</h4></a>'
