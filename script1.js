@@ -3,8 +3,6 @@ var prevPage = "";
 var nextPage = "";
 var searchValue="";
 
-
-
 /*run only when page elements are loaded*/
 $(document).ready(function() {
 	
@@ -67,25 +65,20 @@ function search(searchValue) {
 			q: searchValue,
 			type: 'video',
 			key: 'AIzaSyBr3ogLyxkEbHeVUMI5fCzBveuKwQIW7IU',
-			maxResults: 50 //restricting maximum results in each by 10
+			maxResults: 10 //restricting maximum results in each by 10
 		},
 		function(data) { 
 			prevPage = data.prevPageToken; //keeping note of the previous page
 			nextPage = data.nextPageToken; //keeping note of the next page
 			list = data.items; //Returned JSON array from the API call
 			console.log(list);
-//c="";
 
-document.body.innerHTML = "<input size=1 id='x'/> <iframe name='vid' id='vid' height=300 width=400> "
 			//Parsing JSON object to extract info about each item and the displaying it on the page 
 			$.each(data.items, function(i, item) {
 				fetchData(item); //paring
 				var output = bindData(); //binding the result
-document.body.innerHTML =document.body.innerHTML +output
-				//$('document').append(output);
+				$('#results').append(output);
 			});
-//alert(c);
-//document.innerHTML= c;
 			//Handling action for previous and next page buttons
 			if(prevPage) {
 				$('#changePageButtons').append('<button id="prevPage">Previous</button>');
@@ -115,7 +108,9 @@ function searchPage(pageToken) {
 			q: searchValue,
 			type: 'video',
 			key: 'AIzaSyBr3ogLyxkEbHeVUMI5fCzBveuKwQIW7IU',
-			maxResults: 50},
+			maxResults: 10,
+			pageToken: pageToken //passing the page token as the parameter to get results of that particular page only
+		},
 		function(data) { 
 			prevPage = data.prevPageToken;
 			nextPage = data.nextPageToken;
@@ -162,19 +157,17 @@ function fetchData(item) {
 
 /*Function To create single list element to disply on the page*/
 function bindData() {
-str="javascript:document.getElementById('x').focus();"
-//str= str + "document.getElementById('vid').src='http://127.0.0.1:8000/gettubehttps://www.youtube.com/watch?v="+ videoId +"';";
+str = "javascript:window.open('http://127.0.0.1:7776/gettubehttps://www.youtube.com/watch?v="+ videoId +"')";
 
 	var output = '<li><div class="result">'
 	+ '<div class="list-left">'
-	+ '<a href="'  + str + '"><img src="' + thumbnail + '"></a></div>'
+	+ '<a href="' +str +'" ><img src="' + thumbnail + '"></a></div>'
 	+ '<div class="list-right">'
-	+ '<a  target="vid" href=http://127.0.0.1:7776/gettubehttps://www.youtube.com/watch?v='+ videoId +'><h2>' + title + '</h2></a>'
-	+ '<a  target="vid" href=http://127.0.0.1:7776/gettubehttps://www.youtube.com/watch?v='+ videoId +'><h4>' + channelTitle + '</h4></a>'
+	+ '<a href="' +str +'" ><h2>' + title + '</h2></a>'
+	+ '<a href="' +str +'" ><h4>' + channelTitle + '</h4></a>'
 	+ '<p class="stat">Released On: ' + publishedDate + '</p>'
 	+ '<p>' + description + '</p>';
 	;
-      
 	return output;
 }
 
@@ -182,17 +175,12 @@ str="javascript:document.getElementById('x').focus();"
 function sortByName() {
 	list.sort((a,b) => (a.snippet.title > b.snippet.title) ? 1 : ((b.snippet.title > a.snippet.title) ? -1 : 0));
 	$('#results').html('');
-c = "";
 	$.each(list, function(i, item) {
 				console.log(item.snippet.title);
 				fetchData(item);
 				var output = bindData();
-				c = c+output;
-				//$('#results').append(output);
-	}  );
-document.innerHTML= c;
-alert(c);
-alert('a');
+				$('#results').append(output);
+	});
 }
 
 /*Function to sort the resulting list by Publishing Date of the video*/
@@ -203,17 +191,14 @@ function sortByDate() {
 		return a_date > b_date? 1 : a_date < b_date ? -1 : 0;
 		
 	});
-c="";
+
 	$('#results').html('');
 		$.each(list, function(i, item) {
 					console.log(item.snippet.publishedAt.split("T")[0].split("-").reverse().join("-"));
 					fetchData(item);
 					var output = bindData();
-c = c+output;
-					//$('#results').append(output);
+					$('#results').append(output);
 	});
-document.innerHTML= c;
-alert(c);
 }
 
 /***************************END**************************************/

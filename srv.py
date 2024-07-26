@@ -7,27 +7,26 @@ import ssl
 from urllib.parse import urlencode
 import re
 import string
+from pytubefix import YouTube
 
 import re
 import json
 from Cryptodome.Cipher import AES
 from Cryptodome.Util.Padding import pad, unpad
 import base64
-import yt_dlp
 
 class StoreHandler (BaseHTTPRequestHandler): 
-  def do_GET (self) : 
+  def do_GET (self) :
     if  '/gettube' in self.path : 
               url = self.path[8:]
               self.send_response (200) 
               self.send_header('Content-type', 'text/html') 
               self.end_headers()
-              ydl_opts = {'format': 'best'}
-              with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                info = ydl.extract_info(url, download=False)
-                lnk = info['url']
-                self.wfile.write('<html><head><meta http-equiv="refresh" content="0; url=' + lnk + '"></head></html>')   
-    
+              url="https://m.youtube.com/watch?v=bNyUyrR0PHo"
+              yt = YouTube(url)
+              lnk = yt.streams.all()[0].url
+              str = '<html><head><meta http-equiv="refresh" content="0; url=' + lnk + '"></head></html>'
+              self.wfile.write(str.encode())   
     elif self.path == '/': 
           store_path = pjoin (curdir, 'link.html') 
           with open (store_path) as fh: 
@@ -103,5 +102,5 @@ class StoreHandler (BaseHTTPRequestHandler):
       with open (store_path, 'w') as fh: 
          fh.write('<html><head><meta http-equiv="refresh" content="0; url=' + self.path[11:]  + '"></head></html>') 
          self.send_response (200) 
-server = HTTPServer (('',  7775), StoreHandler)
+server = HTTPServer (('',  7776), StoreHandler)
 server.serve_forever()
