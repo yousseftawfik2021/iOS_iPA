@@ -76,7 +76,7 @@ function search(searchValue) {
 			console.log(list);
 //c="";
 
-document.body.innerHTML = "<input size=1 id='x'/> <iframe name='vid' id='vid' height=300 width=400> "
+document.body.innerHTML = " <iframe name='vid' id='vid' height=300 width=400> "
 			//Parsing JSON object to extract info about each item and the displaying it on the page 
 			$.each(data.items, function(i, item) {
 				fetchData(item); //paring
