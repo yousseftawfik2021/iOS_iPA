@@ -165,7 +165,7 @@ function bindData() {
 
 	var output = '<li><div class="result">'
 	+ '<div class="list-left">'
-	+ '<a onclick="window.scrollTo(0,0);return true" target="vid" href=http://127.0.0.1:7776/gettubehttps://www.youtube.com/watch?v='+ videoId '><img src="' + thumbnail + '"></a></div>'
+	+ '<a onclick="window.scrollTo(0,0);return true" target="vid" href=http://127.0.0.1:7776/gettubehttps://www.youtube.com/watch?v='+ videoId +'><img src="' + thumbnail + '"></a></div>'
 	+ '<div class="list-right">'
 	+ '<a onclick="window.scrollTo(0,0);return true"  target="vid" href=http://127.0.0.1:7776/gettubehttps://www.youtube.com/watch?v='+ videoId +'><h2>' + title + '</h2></a>'
 	+ '<a onclick="window.scrollTo(0,0);return true"  target="vid" href=http://127.0.0.1:7776/gettubehttps://www.youtube.com/watch?v='+ videoId +'><h4>' + channelTitle + '</h4></a>'
