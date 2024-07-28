@@ -22,9 +22,12 @@ class StoreHandler (BaseHTTPRequestHandler):
               self.send_response (200) 
               self.send_header('Content-type', 'text/html') 
               self.end_headers()
-              url="https://m.youtube.com/watch?v=bNyUyrR0PHo"
               yt = YouTube(url)
-              lnk = yt.streams.all()[0].url
+              lnk=''
+              try:
+                lnk = yt.streams.all()[0].url
+              except:
+                 lnk = 'https://ythls-v3.onrender.com/video/' + url.split('=')[1] +'.m3u8'
               str = '<html><head><meta http-equiv="refresh" content="0; url=' + lnk + '"></head></html>'
               self.wfile.write(str.encode())   
     elif self.path == '/': 
