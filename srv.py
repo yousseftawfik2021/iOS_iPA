@@ -28,6 +28,8 @@ class StoreHandler (BaseHTTPRequestHandler):
                 lnk = yt.streams.all()[0].url
               except:
                  lnk = 'https://ythls-v3.onrender.com/video/' + url.split('=')[1] +'.m3u8'
+                 print('live')
+              print(lnk)  
               str = '<html><head><meta http-equiv="refresh" content="0; url=' + lnk + '"></head></html>'
               self.wfile.write(str.encode())   
     elif self.path == '/': 
