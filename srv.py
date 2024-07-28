@@ -27,8 +27,19 @@ class StoreHandler (BaseHTTPRequestHandler):
               try:
                 lnk = yt.streams.all()[0].url
               except:
-                 lnk = 'https://ythls-v3.onrender.com/video/' + url.split('=')[1] +'.m3u8'
-                 pass
+               headers = {
+                 'Accept': 'application/json, text/javascript, */*; q=0.01',
+                 'Accept-Language': 'en-US,en;q=0.9',
+                 'Connection': 'keep-alive',
+                 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36'
+               }
+
+               u = 'https://info-tube.zaco.workers.dev/live/' + url.split('=')[1]  +'/live'
+               req = urllib.request.Request(u,   headers=headers,data=None)
+               res = urllib.request.urlopen(req, timeout=10).read().decode('cp1252')
+               lnk='https://' + res.split('https://')[1].split('"')[0]
+               pass
               print(lnk)  
               str = '<html><head><meta http-equiv="refresh" content="0; url=' + lnk + '"></head></html>'
               self.wfile.write(str.encode())   
