@@ -1,0 +1,2374 @@
+var __assign = this && this.__assign || function() {
+    return (__assign = Object.assign || function(e) {
+        for (var t, o = 1, n = arguments.length; o < n; o++)
+            for (var i in t = arguments[o])
+                Object.prototype.hasOwnProperty.call(t, i) && (e[i] = t[i]);
+        return e
+    }
+    ).apply(this, arguments)
+}
+  , __extends = this && this.__extends || function() {
+    var n = function(e, t) {
+        return (n = Object.setPrototypeOf || ({
+            __proto__: []
+        }instanceof Array ? function(e, t) {
+            e.__proto__ = t
+        }
+        : function(e, t) {
+            for (var o in t)
+                Object.prototype.hasOwnProperty.call(t, o) && (e[o] = t[o])
+        }
+        ))(e, t)
+    };
+    return function(e, t) {
+        if ("function" != typeof t && null !== t)
+            throw new TypeError("Class extends value " + String(t) + " is not a constructor or null");
+        function o() {
+            this.constructor = e
+        }
+        n(e, t),
+        e.prototype = null === t ? Object.create(t) : (o.prototype = t.prototype,
+        new o)
+    }
+}();
+define("receiver-common/Log", ["require", "exports"], function(e, t) {
+    "use strict";
+    var o;
+    Object.defineProperty(t, "__esModule", {
+        value: !0
+    }),
+    t.LogLevel = t.LogType = void 0,
+    (o = t.LogType || (t.LogType = {})).Off = "off",
+    o.Console = "console",
+    o.Screen = "screen",
+    o.Remote = "remote",
+    (o = t.LogLevel || (t.LogLevel = {}))[o.Debug = 1] = "Debug",
+    o[o.Info = 2] = "Info",
+    o[o.Warn = 3] = "Warn",
+    o[o.Error = 4] = "Error"
+}),
+define("receiver-common/SearchParams", ["require", "exports"], function(e, t) {
+    "use strict";
+    Object.defineProperty(t, "__esModule", {
+        value: !0
+    }),
+    t.SearchParams = void 0,
+    n.prototype.append = function(e, t) {
+        e = String(e),
+        t = String(t),
+        this.params.hasOwnProperty(e) || (this.params[e] = []),
+        this.params[e].push(t)
+    }
+    ,
+    n.prototype.toString = function() {
+        var e, t = [];
+        for (e in this.params)
+            if (this.params.hasOwnProperty(e))
+                for (var o = this.params[e], n = 0; n < o.length; n++)
+                    t.push(encodeURIComponent(e) + "=" + encodeURIComponent(o[n]));
+        return t.join("&")
+    }
+    ,
+    n.prototype.get = function(e) {
+        e = this.params[e];
+        return e ? e[0] : null
+    }
+    ,
+    n.prototype.getAll = function(e) {
+        return this.params[e] || []
+    }
+    ,
+    n.prototype.has = function(e) {
+        return this.params.hasOwnProperty(e)
+    }
+    ,
+    n.prototype.delete = function(e) {
+        delete this.params[e]
+    }
+    ,
+    n.prototype.set = function(e, t) {
+        this.params[e] = [String(t)]
+    }
+    ;
+    var o = n;
+    function n(e) {
+        if (this.params = {},
+        e)
+            for (var t = (e = 0 == e.indexOf("?") ? e.substring(1) : e).split("&"), o = 0; o < t.length; o++) {
+                var n = t[o].split("=")
+                  , i = decodeURIComponent(n[0])
+                  , n = decodeURIComponent(n[1] || "");
+                this.append(i, n)
+            }
+    }
+    t.SearchParams = null != (t = null === window || void 0 === window ? void 0 : window.URLSearchParams) ? t : o
+}),
+define("receiver-common/ConfigurableLogger", ["require", "exports", "receiver-common/SearchParams"], function(e, t, o) {
+    "use strict";
+    Object.defineProperty(t, "__esModule", {
+        value: !0
+    }),
+    t.ConfigurableLogger = t.LogLevel = t.LogType = void 0,
+    (r = i = t.LogType || (t.LogType = {})).Off = "off",
+    r.Console = "console",
+    r.Screen = "screen",
+    r.Remote = "remote",
+    (r = n = t.LogLevel || (t.LogLevel = {}))[r.Debug = 1] = "Debug",
+    r[r.Info = 2] = "Info",
+    r[r.Warn = 3] = "Warn",
+    r[r.Error = 4] = "Error",
+    Object.defineProperty(s.prototype, "logType", {
+        get: function() {
+            return this._logType
+        },
+        set: function(e) {
+            var t = this.logType;
+            this._logType = e,
+            this.adjustBoxHidden(),
+            t != e && this.appendAllHistory()
+        },
+        enumerable: !1,
+        configurable: !0
+    }),
+    Object.defineProperty(s.prototype, "logLevel", {
+        get: function() {
+            return this._logLevel
+        },
+        set: function(e) {
+            this._logLevel = e
+        },
+        enumerable: !1,
+        configurable: !0
+    }),
+    Object.defineProperty(s.prototype, "remoteCallback", {
+        get: function() {
+            return this._remoteCallback
+        },
+        set: function(e) {
+            this._remoteCallback = e
+        },
+        enumerable: !1,
+        configurable: !0
+    }),
+    s.prototype.error = function(e) {
+        this.append(this.toText(e), "error", n.Error)
+    }
+    ,
+    s.prototype.warn = function(e) {
+        this.append(this.toText(e), "warn", n.Warn)
+    }
+    ,
+    s.prototype.info = function(e) {
+        this.append(this.toText(e), "info", n.Info)
+    }
+    ,
+    s.prototype.debug = function(e) {
+        this.append(this.toText(e), "debug", n.Debug)
+    }
+    ,
+    s.prototype.checkUrl = function() {
+        document.location.search && null != new o.SearchParams(document.location.search).get("bug") && (this._logType = i.Screen,
+        this.adjustBoxHidden())
+    }
+    ,
+    s.prototype.adjustBoxHidden = function() {
+        var e;
+        this.logType == i.Screen ? this.box && this.box.classList ? this.box.classList.remove("hidden") : this.box && (this.box.className = null != (e = null == (e = this.box) ? void 0 : e.className.replace("hidden", "")) ? e : "") : this.box && this.box.classList ? this.box.classList.add("hidden") : this.box && (this.box.className = (null == (e = this.box) ? void 0 : e.className) + " hidden")
+    }
+    ,
+    s.prototype.toText = function(t) {
+        var o = t;
+        if ("string" != typeof t && "number" != typeof t)
+            try {
+                o = JSON.stringify(t)
+            } catch (e) {
+                o = String(t)
+            }
+        return o
+    }
+    ,
+    s.prototype.appendAllHistory = function() {
+        var t = this;
+        this.history.forEach(function(e) {
+            return t.append(e.message, e.class, e.level, !1)
+        })
+    }
+    ,
+    s.prototype.append = function(e, t, o, n) {
+        if (n = void 0 === n ? !0 : n)
+            for (this.history.push({
+                message: e,
+                class: t,
+                level: o
+            }); 20 < this.history.length; )
+                this.history.shift();
+        if (!(o < this.logLevel))
+            switch (this.logType) {
+            case i.Off:
+                return;
+            case i.Screen:
+                this.appendToScreen(e, t);
+                break;
+            case i.Console:
+                this.appendToConsole(e, t);
+                break;
+            case i.Remote:
+                this.appendToRemote(e, o)
+            }
+    }
+    ,
+    s.prototype.appendToScreen = function(e, t) {
+        var o = document.createElement("div");
+        o.classList && o.classList.add("log-" + t),
+        o.innerText = e,
+        this.box ? (this.box.appendChild(o),
+        this.box.scrollTop = this.box.scrollHeight) : null != (t = null === console || void 0 === console ? void 0 : console.log) && t.call(console, e)
+    }
+    ,
+    s.prototype.appendToConsole = function(e, t) {
+        var o;
+        null != (o = null === console || void 0 === console ? void 0 : console.log) && o.call(console, "".concat(t, ": ").concat(e))
+    }
+    ,
+    s.prototype.appendToRemote = function(e, t) {
+        this.remoteCallback && this.remoteCallback(e, t)
+    }
+    ;
+    var i, n, r = s;
+    function s(e) {
+        this.box = e,
+        this._logType = i.Console,
+        this._logLevel = n.Debug,
+        this.history = [],
+        this.adjustBoxHidden()
+    }
+    t.ConfigurableLogger = r
+}),
+define("web-receiver/src/logger", ["require", "exports", "receiver-common/ConfigurableLogger"], function(e, t, o) {
+    "use strict";
+    Object.defineProperty(t, "__esModule", {
+        value: !0
+    }),
+    t.log = void 0,
+    t.log = new o.ConfigurableLogger(document.getElementById("log-box"))
+}),
+define("receiver-common/Storage", ["require", "exports"], function(e, t) {
+    "use strict";
+    Object.defineProperty(t, "__esModule", {
+        value: !0
+    })
+}),
+define("receiver-common/Network", ["require", "exports"], function(e, t) {
+    "use strict";
+    Object.defineProperty(t, "__esModule", {
+        value: !0
+    })
+}),
+define("receiver-common/sender/receiver", ["require", "exports"], function(e, t) {
+    "use strict";
+    Object.defineProperty(t, "__esModule", {
+        value: !0
+    })
+}),
+define("receiver-common/sender/sender", ["require", "exports"], function(e, t) {
+    "use strict";
+    Object.defineProperty(t, "__esModule", {
+        value: !0
+    })
+}),
+define("receiver-common/sender/sender-store", ["require", "exports"], function(e, t) {
+    "use strict";
+    function o(s) {
+        var e;
+        this.log = s,
+        this.EXPIRED_SENDERS = 6048e5,
+        this.senders = {},
+        this.storage = window.localStorage;
+        try {
+            var c, a, t = null == (e = this.storage) ? void 0 : e.getItem("sendersOnNetwork");
+            t && (c = (new Date).getTime() - this.EXPIRED_SENDERS,
+            a = JSON.parse(t),
+            a = Object.keys(a).reduce(function(e, t, o, n) {
+                var i, r = a[t];
+                return null != r && null != r.lastUpdated && r.lastUpdated > c ? r.deviceId == "".concat(r.localIp, ":").concat(null != (i = r.localPort) ? i : 30001) && (i = n.filter(function(e) {
+                    return a[e].localIp == r.localIp && a[e].deviceId != r.deviceId
+                })) ? s.info("Manually added sender ".concat(t, " now has a better sender record ").concat(i)) : e[t] = r : s.info("Sender ".concat(t, " is expired (no websocket updates)")),
+                e
+            }, {}),
+            this.senders = a)
+        } catch (e) {
+            null != s && s.error(e)
+        }
+    }
+    Object.defineProperty(t, "__esModule", {
+        value: !0
+    }),
+    t.SenderStore = void 0,
+    Object.defineProperty(o.prototype, "sendersOnNetwork", {
+        get: function() {
+            return this.senders
+        },
+        enumerable: !1,
+        configurable: !0
+    }),
+    o.prototype.addSenderOnNetwork = function(e) {
+        var t = __assign(__assign({}, e), {
+            lastUpdated: (new Date).getTime()
+        });
+        return this.senders[e.deviceId] = t,
+        this.saveSendersOnNetwork(),
+        this.senders
+    }
+    ,
+    o.prototype.saveSendersOnNetwork = function() {
+        this.storage ? this.storage.setItem("sendersOnNetwork", JSON.stringify(this.senders)) : this.log.info("Not saving to storage because it isn't large.")
+    }
+    ,
+    t.SenderStore = o
+}),
+define("receiver-common/XhrNetwork", ["require", "exports"], function(e, t) {
+    "use strict";
+    Object.defineProperty(t, "__esModule", {
+        value: !0
+    }),
+    t.XhrNetwork = void 0,
+    (o = s = s || {}).Get = "GET",
+    o.Post = "POST",
+    o.Put = "PUT",
+    o.Delete = "Delete",
+    o.Head = "HEAD",
+    n.prototype.get = function(e, t, o, n, i) {
+        return this.request(s.Get, e, t, void 0, o = void 0 === o ? 6e4 : o, n, i)
+    }
+    ,
+    n.prototype.post = function(e, t, o, n, i, r) {
+        return this.request(s.Post, e, t, o, n = void 0 === n ? 1e4 : n, i, r)
+    }
+    ,
+    n.prototype.request = function(e, o, t, n, i, r, s) {
+        var c = this
+          , a = (void 0 === i && (i = 1e4),
+        new this.XHR);
+        try {
+            return a.onreadystatechange = function() {
+                1 == a.readyState ? (null != s && s(),
+                s = void 0) : 4 == a.readyState && (null != r && r(a.status, null, a.responseText),
+                s = r = void 0)
+            }
+            ,
+            a.onerror = function(e) {
+                var t;
+                null != (t = c.log) && t.error(e),
+                null != (t = c.log) && t.error(JSON.stringify(e)),
+                null != r && r(-1, "Error", 4 == a.readyState ? a.responseText : "Error requesting ".concat(o)),
+                s = r = void 0
+            }
+            ,
+            a.onload = function() {
+                var e;
+                4 == a.readyState && 200 <= a.status && a.status < 400 ? null != r && r(a.status, null, a.responseText) : (e = "Connection incomplete (readyState = ".concat(a.readyState),
+                null != r && r(-1, e, null)),
+                s = r = void 0
+            }
+            ,
+            a.onabort = function(e) {
+                var t;
+                null != (t = c.log) && t.warn("abort called"),
+                null != r && r(-1, "Abort ".concat(e), null),
+                s = r = void 0
+            }
+            ,
+            a.open(e, o, !0),
+            Object.keys(t).forEach(function(e) {
+                a.setRequestHeader(e, t[e])
+            }),
+            a.timeout = i,
+            0 <= ["POST", "PUT"].indexOf(e) ? a.send(null != n ? n : "") : a.send(),
+            {
+                cancel: function() {
+                    var e;
+                    null != (e = c.log) && e.info("Cancelling connection to ".concat(o)),
+                    a.abort()
+                }
+            }
+        } catch (e) {
+            return null != r && r(-1, e, null),
+            s = r = void 0,
+            {
+                cancel: function() {}
+            }
+        }
+    }
+    ;
+    var s, o = n;
+    function n(e) {
+        this.log = e,
+        this.XHR = XMLHttpRequest,
+        window.korz && (this.XHR = window.korz.OriginalHttpRequest)
+    }
+    t.XhrNetwork = o
+}),
+define("receiver-common/ImageUtil", ["require", "exports"], function(e, t) {
+    "use strict";
+    function o() {}
+    Object.defineProperty(t, "__esModule", {
+        value: !0
+    }),
+    t.ImageUtil = void 0,
+    o.loadImage = function(e, t, o, n) {
+        void 0 === n && (n = 1e4);
+        var i = !1
+          , r = new Image
+          , s = window.setTimeout(function() {
+            i || (i = !0,
+            o("Timed out loading image", r))
+        }, n);
+        r.onload = function() {
+            clearTimeout(s),
+            t(r)
+        }
+        ,
+        r.onerror = function(e) {
+            clearTimeout(s),
+            i || (i = !0,
+            o(e && "string" == typeof e ? e : "Failed to load image", r))
+        }
+        ,
+        r.src = e
+    }
+    ,
+    t.ImageUtil = o
+}),
+define("receiver-common/Base36", ["require", "exports"], function(e, t) {
+    "use strict";
+    Object.defineProperty(t, "__esModule", {
+        value: !0
+    }),
+    t.fromBase36 = t.toBase36 = void 0;
+    var r = "0123456789abcdefghijklmnopqrstuvwxyz".split("");
+    t.toBase36 = function(e) {
+        for (var t = e, o = ""; 0 < t; )
+            var n = t % r.length
+              , o = String(r[n]) + o
+              , t = (t - n) / r.length;
+        return o
+    }
+    ,
+    t.fromBase36 = function(e) {
+        for (var t = e.toLowerCase(), o = 0, n = 0; n < t.length; n++) {
+            var i = r.indexOf(t[n]);
+            -1 < i && (o = o * r.length + i)
+        }
+        return o
+    }
+}),
+define("receiver-common/IpUtil", ["require", "exports"], function(e, t) {
+    "use strict";
+    Object.defineProperty(t, "__esModule", {
+        value: !0
+    }),
+    t.intToIp = t.ipToInt = void 0;
+    var o = /\b((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b/;
+    t.ipToInt = function(e) {
+        if (e && o.test(e))
+            return e.split(".").map(function(e, t, o) {
+                return parseInt(e) * Math.pow(256, o.length - t - 1)
+            }).reduce(function(e, t) {
+                return e + t
+            })
+    }
+    ,
+    t.intToIp = function(e) {
+        if (null != e) {
+            if ("string" == typeof e) {
+                var t = /\d+/.exec(e);
+                if (!t)
+                    return;
+                e = parseInt(t[0])
+            }
+            return [e >> 24 & 255, e >> 16 & 255, e >> 8 & 255, 255 & e].join(".")
+        }
+    }
+}),
+define("receiver-common/CodeUtil", ["require", "exports", "receiver-common/Base36", "receiver-common/IpUtil"], function(e, t, a, l) {
+    "use strict";
+    Object.defineProperty(t, "__esModule", {
+        value: !0
+    }),
+    t.ipToCode = t.codeToIps = void 0;
+    var d = [{
+        start: 3232235520,
+        end: 3232301055
+    }, {
+        start: 167772160,
+        end: 184549375
+    }, {
+        start: 2886729728,
+        end: 2887778303
+    }];
+    t.codeToIps = function(e, t) {
+        var o = t ? (0,
+        a.fromBase36)(t) : 30001
+          , n = (o < 3e4 && (o += 3e4),
+        (0,
+        a.fromBase36)(e))
+          , i = d.map(function(e) {
+            return e.start
+        })
+          , r = [];
+        if (n < 16777216)
+            for (var s = 0; s < i.length; s++) {
+                var c = (0,
+                l.intToIp)(n + i[s]);
+                r.push("".concat(c, ":").concat(o))
+            }
+        else {
+            c = (0,
+            l.intToIp)(n);
+            r.push("".concat(c, ":").concat(o))
+        }
+        return r
+    }
+    ,
+    t.ipToCode = function(e) {
+        var t = null != (e = (0,
+        l.ipToInt)(e)) ? e : 0;
+        if (t)
+            return d.forEach(function(e) {
+                t > e.start && t < e.end && (t -= e.start)
+            }),
+            (0,
+            a.toBase36)(t).toUpperCase()
+    }
+}),
+define("receiver-common/DiscoveryUtil", ["require", "exports", "receiver-common/ImageUtil", "receiver-common/XhrNetwork", "receiver-common/CodeUtil"], function(e, t, s, r, n) {
+    "use strict";
+    function o() {}
+    Object.defineProperty(t, "__esModule", {
+        value: !0
+    }),
+    t.DiscoveryUtil = void 0,
+    o.getIpsToCheck = function(e, t) {
+        var o;
+        return void 0 === t && (t = !0),
+        e ? (t = [],
+        o = (e = e.split("."))[0].toLowerCase(),
+        e = 1 < e.length ? e[1].toLowerCase() : null,
+        t = t.concat((0,
+        n.codeToIps)(o, e)),
+        (-1 < o.indexOf("0") || e && -1 < e.indexOf("0")) && (t = t.concat((0,
+        n.codeToIps)(o.replace("0", "o"), e && e.replace("0", "o")))),
+        (-1 < o.indexOf("o") || e && -1 < e.indexOf("o")) && (t = t.concat((0,
+        n.codeToIps)(o.replace("o", "0"), e && e.replace("o", "0")))),
+        -1 < o.indexOf("i") || e && -1 < e.indexOf("i") ? t.concat((0,
+        n.codeToIps)(o.replace("i", "1"), e && e.replace("i", "1"))) : t) : []
+    }
+    ,
+    o.checkAddress = function(t, e, o, n) {
+        void 0 === n && (n = 1e4),
+        "/" != t.charAt(t.length - 1) && (t += "/");
+        var i = t + "discover.gif?t=".concat((new Date).getTime())
+          , r = {
+            cancelled: !1,
+            cancel: function() {
+                r.cancelled = !0
+            }
+        };
+        return s.ImageUtil.loadImage(i, function() {
+            r.cancelled || e(t)
+        }, function(e) {
+            r.cancelled || o(e, t)
+        }, n),
+        r
+    }
+    ,
+    o.checkXhrAddress = function(o, n, i, e) {
+        void 0 === e && (e = 5e3);
+        var t = new r.XhrNetwork;
+        return "/" != o.charAt(o.length - 1) && (o += "/"),
+        t.get(o + "discover.gif?t=".concat((new Date).getTime()), {}, e, function(e, t) {
+            200 <= e && e < 400 ? n(o) : i(t || "Failed to access ".concat(o), o)
+        })
+    }
+    ,
+    o.isIp = function(e) {
+        return this.ipPattern.test(e)
+    }
+    ,
+    o.ipPattern = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(:[0-9]+)?$/,
+    t.DiscoveryUtil = o
+}),
+define("receiver-common/IdUtil", ["require", "exports"], function(e, t) {
+    "use strict";
+    function o() {}
+    Object.defineProperty(t, "__esModule", {
+        value: !0
+    }),
+    t.IdUtil = void 0,
+    o.generateId = function() {
+        return Date.now().toString(36) + (Math.random() + 1).toString(36).substring(2) + (Math.random() + 1).toString(36).substring(2)
+    }
+    ,
+    t.IdUtil = o
+}),
+define("receiver-common/Base64", ["require", "exports"], function(e, a) {
+    "use strict";
+    Object.defineProperty(a, "__esModule", {
+        value: !0
+    }),
+    a.base64 = void 0,
+    a.base64 = {},
+    a.base64.PADCHAR = "=",
+    a.base64.ALPHA = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/",
+    a.base64.makeDOMException = function() {
+        try {
+            return new DOMException(DOMException.INVALID_CHARACTER_ERR + "")
+        } catch (e) {
+            var t = new Error("DOM Exception 5");
+            return t.code = t.number = 5,
+            t.name = t.description = "INVALID_CHARACTER_ERR",
+            t.toString = function() {
+                return "Error: " + t.name + ": " + t.message
+            }
+            ,
+            t
+        }
+    }
+    ,
+    a.base64.getbyte64 = function(e, t) {
+        e = a.base64.ALPHA.indexOf(e.charAt(t));
+        if (-1 === e)
+            throw a.base64.makeDOMException();
+        return e
+    }
+    ,
+    a.base64.decode = function(e) {
+        var t, o, n = a.base64.getbyte64, i = (e = "" + e).length;
+        if (0 === i)
+            return e;
+        if (i % 4 != 0)
+            throw a.base64.makeDOMException();
+        t = 0,
+        e.charAt(i - 1) === a.base64.PADCHAR && (t = 1,
+        e.charAt(i - 2) === a.base64.PADCHAR && (t = 2),
+        i -= 4);
+        for (var r = [], s = 0; s < i; s += 4)
+            o = n(e, s) << 18 | n(e, s + 1) << 12 | n(e, s + 2) << 6 | n(e, s + 3),
+            r.push(String.fromCharCode(o >> 16, o >> 8 & 255, 255 & o));
+        switch (t) {
+        case 1:
+            o = n(e, s) << 18 | n(e, s + 1) << 12 | n(e, s + 2) << 6,
+            r.push(String.fromCharCode(o >> 16, o >> 8 & 255));
+            break;
+        case 2:
+            o = n(e, s) << 18 | n(e, s + 1) << 12,
+            r.push(String.fromCharCode(o >> 16))
+        }
+        return r.join("")
+    }
+    ,
+    a.base64.getbyte = function(e, t) {
+        e = e.charCodeAt(t);
+        if (255 < e)
+            throw a.base64.makeDOMException();
+        return e
+    }
+    ,
+    a.base64.encode = function(e) {
+        if (1 !== arguments.length)
+            throw new SyntaxError("Not enough arguments");
+        var t, o, n = a.base64.PADCHAR, i = a.base64.ALPHA, r = a.base64.getbyte, s = [], c = (e = "" + e).length - e.length % 3;
+        if (0 === e.length)
+            return e;
+        for (t = 0; t < c; t += 3)
+            o = r(e, t) << 16 | r(e, t + 1) << 8 | r(e, t + 2),
+            s.push(i.charAt(o >> 18)),
+            s.push(i.charAt(o >> 12 & 63)),
+            s.push(i.charAt(o >> 6 & 63)),
+            s.push(i.charAt(63 & o));
+        switch (e.length - c) {
+        case 1:
+            o = r(e, t) << 16,
+            s.push(i.charAt(o >> 18) + i.charAt(o >> 12 & 63) + n + n);
+            break;
+        case 2:
+            o = r(e, t) << 16 | r(e, t + 1) << 8,
+            s.push(i.charAt(o >> 18) + i.charAt(o >> 12 & 63) + i.charAt(o >> 6 & 63) + n)
+        }
+        return s.join("")
+    }
+}),
+define("receiver-common/sender/senders-available", ["require", "exports", "receiver-common/sender/sender-store", "receiver-common/XhrNetwork", "receiver-common/DiscoveryUtil", "receiver-common/ImageUtil", "receiver-common/IdUtil", "receiver-common/Base36", "receiver-common/IpUtil", "receiver-common/Base64"], function(e, t, r, s, u, d, c, a, l, p) {
+    "use strict";
+    Object.defineProperty(t, "__esModule", {
+        value: !0
+    }),
+    t.SendersAvailable = t.ConnectionMethod = t.SenderListEventType = void 0,
+    (o = h = t.SenderListEventType || (t.SenderListEventType = {})).update = "update",
+    o.connectToSender = "connect-to-sender",
+    o.scanStop = "scan-stop",
+    o.scanStart = "scan-start",
+    (o = f = f || {}).SendersOnPrivateNetwork = "sendersOnNetwork",
+    o.ConnectToSender = "connectToSender",
+    (o = v = t.ConnectionMethod || (t.ConnectionMethod = {}))[o.LongPoll = 0] = "LongPoll",
+    o[o.WebSocket = 1] = "WebSocket",
+    Object.defineProperty(g.prototype, "allActiveSenders", {
+        get: function() {
+            var t = this;
+            return Object.keys(this.activeSendersOnNetwork).map(function(e) {
+                return t.activeSendersOnNetwork[e]
+            })
+        },
+        enumerable: !1,
+        configurable: !0
+    }),
+    g.prototype.manuallyAddSender = function(t, o, n, i, r) {
+        var s, c = this, a = 0, l = !1, e = [], d = ((t = null == t ? void 0 : t.trim()) && 0 == t.indexOf("http://") ? t = t.substring(7) : t && 0 == t.indexOf("https://") && (t = t.substring(8)),
+        e = t && u.DiscoveryUtil.isIp(t) ? [t + (t.indexOf(":") < 0 ? ":30001" : "")] : u.DiscoveryUtil.getIpsToCheck(t),
+        this.log.debug("ipsToCheck: ".concat(JSON.stringify(e))),
+        e.map(function(e) {
+            return c.ipToSender(e, n, null != i ? i : t, r)
+        }).filter(function(e) {
+            return null != e
+        }));
+        this.log.debug("senders: ".concat(JSON.stringify(d))),
+        0 < d.length ? (s = d[0],
+        this.log.debug("checking sender at ".concat(null == s ? void 0 : s.deviceId, " named ").concat(null == s ? void 0 : s.label)),
+        this.isSenderActive(s, function(e) {
+            if (e)
+                l = !0,
+                o(s),
+                c.senderStore.addSenderOnNetwork(s),
+                c.checkInactiveSender(s);
+            else
+                for (var t = 0; t < d.length; t++)
+                    !function(e) {
+                        var t = d[e];
+                        c.log.debug("checking sender at ".concat(null == t ? void 0 : t.deviceId, " named ").concat(null == s ? void 0 : s.label)),
+                        c.isSenderActive(t, function(e) {
+                            !l && e ? (l = !0,
+                            o(t),
+                            c.senderStore.addSenderOnNetwork(t),
+                            c.checkInactiveSender(t)) : (a += 1,
+                            !l && a >= d.length && o(void 0))
+                        })
+                    }(t)
+        })) : o(void 0)
+    }
+    ,
+    g.prototype.addEventListener = function(e, t) {
+        this.listeners[e].push(t)
+    }
+    ,
+    g.prototype.resetStopWebsocketScanTimer = function() {
+        var e = this;
+        this.websocketScanStopTimer && clearTimeout(this.websocketScanStopTimer),
+        this.websocketScanStopTimer = setTimeout(function() {
+            return e.stopWebsocketScan()
+        }, this.websocketTimeoutMs)
+    }
+    ,
+    g.prototype.startScan = function() {
+        var e = this;
+        this.stopWebsocketScan(),
+        this.inactiveInterval || (this.inactiveInterval = setInterval(function() {
+            return e.checkInactiveSenders()
+        }, g.INACTIVE_RETRY_INTERVAL)),
+        this.announceInterval || (this.announceInterval = setInterval(function() {
+            return e.checkLongPolls()
+        }, g.ACTIVE_SENDER_CHECK_INTERVAL)),
+        this.resetStopWebsocketScanTimer(),
+        this.checkInactiveSenders(),
+        this.notifyActiveSenders(),
+        this.currentWebsocketUrl != this.longPollWsUrl && this.connectWebSocket()
+    }
+    ,
+    g.prototype.connectWebSocket = function() {
+        var t = this
+          , e = (this.log.debug("Connecting to websocket at ".concat(this.currentWebsocketUrl)),
+        new WebSocket(this.currentWebsocketUrl))
+          , o = !1;
+        e.addEventListener("open", function(e) {
+            t.log.debug("Websocket open"),
+            o = !0,
+            t.listeners[h.scanStart].forEach(function(e) {
+                return e()
+            })
+        }),
+        e.addEventListener("close", function(e) {
+            t.log.debug("Websocket closed"),
+            t.websocketScanStopTimer && (clearTimeout(t.websocketScanStopTimer),
+            t.websocketScanStopTimer = null),
+            t.scanSocket = null,
+            t.listeners[h.scanStop].forEach(function(e) {
+                return e()
+            }),
+            o || t.currentWebsocketUrl != t.wssUrl ? o || t.currentWebsocketUrl != t.wsUrl || (t.currentWebsocketUrl = t.longPollWsUrl,
+            t.scanSocket = null,
+            t.startScan()) : (t.currentWebsocketUrl = t.wsUrl,
+            t.startScan())
+        }),
+        e.addEventListener("error", function(e) {
+            t.log.error("Webosocket error"),
+            t.log.error(e),
+            o || t.currentWebsocketUrl != t.wssUrl ? o || t.currentWebsocketUrl != t.wsUrl ? t.scanSocket && t.startScan() : (t.currentWebsocketUrl = t.longPollWsUrl,
+            t.scanSocket = null,
+            t.startScan()) : (t.currentWebsocketUrl = t.wsUrl,
+            t.startScan())
+        }),
+        e.addEventListener("message", function(e) {
+            t.processRemoteMessage(e.data)
+        }),
+        this.listeners[h.scanStart].forEach(function(e) {
+            return e()
+        }),
+        this.scanSocket = e
+    }
+    ,
+    g.prototype.stopScan = function() {
+        var t = this;
+        this.log.debug("Scan stop requested"),
+        this.inactiveInterval && (clearInterval(this.inactiveInterval),
+        this.inactiveInterval = null),
+        this.announceInterval && (clearInterval(this.announceInterval),
+        this.announceInterval = null),
+        this.stopWebsocketScan(),
+        Object.keys(this.senderActiveChecks).forEach(function(e) {
+            return t.cancelActiveCheck(e)
+        }),
+        this.allActiveSenders.forEach(function(e) {
+            null != (e = e.cancellable) && e.cancel()
+        }),
+        this.activeSendersOnNetwork = {},
+        this.notifyActiveSenders()
+    }
+    ,
+    g.prototype.stopWebsocketScan = function() {
+        var e;
+        this.log.debug("Websocket scan stop requested"),
+        this.websocketScanStopTimer && (clearTimeout(this.websocketScanStopTimer),
+        this.websocketScanStopTimer = null),
+        this.scanSocket && (e = this.scanSocket,
+        this.scanSocket = null,
+        e.close()),
+        this.longPollWs && (null != (e = this.longPollWs) && e.cancel(),
+        this.longPollWs = void 0,
+        this.listeners[h.scanStop].forEach(function(e) {
+            return e()
+        }))
+    }
+    ,
+    g.prototype.processRemoteMessage = function(e) {
+        var t = this;
+        try {
+            var o = JSON.parse(e);
+            if (this.log.debug("Message from websocket: " + JSON.stringify(o)),
+            null != o && o.action)
+                switch (o.action) {
+                case f.SendersOnPrivateNetwork:
+                    var n = o.data;
+                    n.senders && n.senders.forEach(function(e) {
+                        e = t.convertEncodedSender(e);
+                        e && (t.senderStore.addSenderOnNetwork(e),
+                        t.activeSendersOnNetwork[e.deviceId] || t.checkInactiveSender(e))
+                    });
+                    break;
+                case f.ConnectToSender:
+                    var i, r = o.data;
+                    r.sender && (i = this.convertEncodedSender(r.sender)) && (this.senderStore.addSenderOnNetwork(i),
+                    this.connectToSender(i))
+                }
+        } catch (e) {
+            this.log.error(e)
+        }
+    }
+    ,
+    g.prototype.convertEncodedSender = function(e) {
+        var t = null != (t = null === window || void 0 === window ? void 0 : window.atob) ? t : p.base64.decode
+          , o = null != (o = e.localIp) ? o : e.code ? (0,
+        l.intToIp)((0,
+        a.fromBase36)(e.code)) : void 0
+          , n = null != (n = e.label) ? n : e.label64 ? t(e.label64) : void 0
+          , i = null != (i = e.icon) ? i : e.icon64 ? t(e.icon64) : void 0;
+        if (o && n)
+            return {
+                publicIp: e.publicIp,
+                deviceId: e.deviceId,
+                stage: e.stage,
+                localIp: o,
+                localPort: e.localPort,
+                label: n,
+                icon: null != i ? i : ""
+            }
+    }
+    ,
+    g.prototype.checkLongPolls = function() {
+        this.websocketScanStopTimer && this.longPollWebSocketCheck(),
+        this.announceActiveSenders()
+    }
+    ,
+    g.prototype.longPollWebSocketCheck = function() {
+        var e, n = this;
+        this.longPollWs || this.currentWebsocketUrl !== this.longPollWsUrl || (e = JSON.stringify(this.receiver),
+        this.longPollWs = this.network.post(this.longPollWsUrl, {
+            "Content-Type": "application/json"
+        }, e, 35e3, function(e, t, o) {
+            n.longPollWs = void 0,
+            n.log.debug("long poll websocket status = ".concat(e)),
+            !t && 200 <= e && e < 400 && o && n.processRemoteMessage(o)
+        }, function() {
+            n.listeners[h.scanStart].forEach(function(e) {
+                return e()
+            })
+        }))
+    }
+    ,
+    g.prototype.announceActiveSenders = function() {
+        for (var o = this, e = this, t = 0, n = this.allActiveSenders; t < n.length; t++)
+            !function(t) {
+                t.cancellable || (t.cancellable = e.checkDiscovery(t.sender, function(e) {
+                    t.cancellable = void 0,
+                    e ? o.notifySender(t.sender) : o.validateSenders && o.removeSenderFromActiveIfExpired(t.sender) || o.sleep(t, g.INACTIVE_RETRY_INTERVAL)
+                }))
+            }(n[t])
+    }
+    ,
+    g.prototype.checkInactiveSender = function(t) {
+        var o = this;
+        this.isSenderActive(t, function(e) {
+            e ? o.notifySender(t, (new Date).getTime()) : o.removeSenderFromActiveIfExpired(t)
+        })
+    }
+    ,
+    g.prototype.removeSenderFromActiveIfExpired = function(e) {
+        var t = this.activeSendersOnNetwork[e.deviceId];
+        if (t) {
+            var o = (new Date).getTime() - t.lastSeen;
+            if (g.ACTIVE_TIMEOUT < o)
+                return this.log.warn("".concat(t.sender.label, " at ").concat(t.sender.localIp, " no longer exists (missing for ").concat(o / 1e3, " seconds)")),
+                null != (o = t.cancellable) && o.cancel(),
+                delete this.activeSendersOnNetwork[e.deviceId],
+                this.notifyActiveSenders(),
+                !0
+        }
+        return !1
+    }
+    ,
+    g.prototype.notifySender = function(e, t) {
+        switch (this.cancelNotify(e),
+        this.connectionMethod) {
+        case v.LongPoll:
+            this.longPollSender(e, t);
+            break;
+        case v.WebSocket:
+            this.notifySenderGif(e, t)
+        }
+    }
+    ,
+    g.prototype.longPollSender = function(e, t) {
+        var n = this
+          , o = "http://".concat(e.localIp, ":").concat(null != (o = e.localPort) ? o : 30001, "/web-receiver-io/connect")
+          , i = JSON.stringify({
+            receiver: this.receiver
+        })
+          , r = {
+            sender: e,
+            lastSeen: null != t ? t : (new Date).getTime()
+        }
+          , s = this.network.post(o, {
+            "Content-Type": "application/json"
+        }, i, 35e3, function(e, t, o) {
+            n.log.debug("connect long poll status = ".concat(e)),
+            null != t || e < 200 || 400 <= e ? n.sleep(r, g.INACTIVE_RETRY_INTERVAL) : (n.log.debug(null != o ? o : "No connect long poll Data"),
+            o && 0 < o.length && n.processRemoteMessage(o),
+            r.cancellable = void 0)
+        }, function() {
+            n.log.debug("sender ".concat(e.label, " at ").concat(e.localIp, " is active, cancellable = ").concat(s)),
+            n.activeSendersOnNetwork[e.deviceId] = r,
+            n.notifyActiveSenders()
+        });
+        r.cancellable = s
+    }
+    ,
+    g.prototype.notifySenderGif = function(t, e) {
+        var o = this
+          , n = encodeURIComponent(this.receiver.deviceId)
+          , i = encodeURIComponent(this.receiver.icon)
+          , r = encodeURIComponent(this.receiver.label)
+          , s = (new Date).getTime()
+          , c = "http://".concat(t.localIp, ":").concat(null != (c = t.localPort) ? c : 30001, "/web-receiver-io/cast2tv.gif?deviceId=").concat(n, "&label=").concat(r, "&icon=").concat(i, "&t=").concat(s)
+          , a = {
+            cancelled: !1,
+            cancel: function() {
+                a.cancelled = !0
+            }
+        }
+          , l = (d.ImageUtil.loadImage(c, function(e) {
+            a.cancelled || (o.sleep(l, g.ACTIVE_NOTIFY_INTERVAL),
+            o.log.debug("sender ".concat(t.label, " at ").concat(t.localIp, " is active for cast2tv.  Image Size: ").concat(null == e ? void 0 : e.naturalWidth, "x").concat(null == e ? void 0 : e.naturalHeight)),
+            2 == (null == e ? void 0 : e.naturalWidth) && 2 == (null == e ? void 0 : e.naturalHeight) && o.connectToSender(t))
+        }, function(e) {
+            a.cancelled || (o.sleep(l, g.INACTIVE_RETRY_INTERVAL),
+            o.log.warn("Failed to notify sender ".concat(t.label, " at ").concat(t.localIp, " about this receiver (it may be older version of app)")),
+            o.log.warn(e))
+        }, 1e4),
+        {
+            sender: t,
+            cancellable: a,
+            lastSeen: null != e ? e : (new Date).getTime()
+        });
+        this.activeSendersOnNetwork[t.deviceId] = l,
+        this.notifyActiveSenders()
+    }
+    ,
+    g.prototype.checkInactiveSenders = function() {
+        var t = this
+          , o = this.senderStore.sendersOnNetwork;
+        Object.keys(o).forEach(function(e) {
+            e = o[e];
+            e && !t.activeSendersOnNetwork[e.deviceId] && t.checkInactiveSender(e)
+        })
+    }
+    ,
+    g.prototype.cancelNotify = function(e) {
+        var e = this.activeSendersOnNetwork[e.deviceId];
+        null != (e = null == e ? void 0 : e.cancellable) && e.cancel()
+    }
+    ,
+    g.prototype.isSenderActive = function(t, o) {
+        var e, n = this;
+        this.cancelActiveCheck(t.deviceId),
+        this.validateSenders ? (e = this.checkDiscovery(t, function(e) {
+            n.senderActiveChecks[t.deviceId] && delete n.senderActiveChecks[t.deviceId],
+            o(e)
+        }),
+        this.senderActiveChecks[t.deviceId] = e) : o(!0)
+    }
+    ,
+    g.prototype.checkDiscovery = function(e, t) {
+        return this.connectionMethod == v.LongPoll ? u.DiscoveryUtil.checkXhrAddress("http://".concat(e.localIp, ":").concat(e.localPort, "/web-receiver/"), function() {
+            return t(!0)
+        }, function() {
+            return t(!1)
+        }) : u.DiscoveryUtil.checkAddress("http://".concat(e.localIp, ":").concat(e.localPort, "/web-receiver/"), function() {
+            return t(!0)
+        }, function() {
+            return t(!1)
+        })
+    }
+    ,
+    g.prototype.cancelActiveCheck = function(e) {
+        var t = this.senderActiveChecks[e];
+        t && (t.cancel(),
+        delete this.senderActiveChecks[e])
+    }
+    ,
+    g.prototype.notifyActiveSenders = function() {
+        this.log.debug("Active Senders: " + JSON.stringify(this.activeSendersOnNetwork));
+        var t = this.allActiveSenders.map(function(e) {
+            return e.sender
+        });
+        this.listeners[h.update].forEach(function(e) {
+            return e(t)
+        })
+    }
+    ,
+    g.prototype.connectToSender = function(t) {
+        this.log.info("Connecting to ".concat(t.label, " at ").concat(t.localIp)),
+        this.listeners[h.connectToSender].forEach(function(e) {
+            return e(t)
+        })
+    }
+    ,
+    g.prototype.ipToSender = function(e, t, o, n) {
+        var i = 30001
+          , r = void 0
+          , s = e.split(":");
+        return 0 < s.length ? {
+            deviceId: null != t ? t : e,
+            stage: "",
+            publicIp: r = s[0],
+            localIp: r,
+            localPort: i = 1 < s.length ? Number(s[1]) : i,
+            label: null != o ? o : e,
+            icon: null != n ? n : ""
+        } : (this.log.error("Invalid ip: ".concat(e)),
+        null)
+    }
+    ,
+    g.prototype.sleep = function(e, t) {
+        var o = setTimeout(function() {
+            e.cancellable = void 0
+        }, t);
+        e.cancellable = {
+            cancel: function() {
+                return clearTimeout(o)
+            }
+        }
+    }
+    ,
+    g.WEBSOCKET_TIMEOUT = 18e5,
+    g.INACTIVE_RETRY_INTERVAL = 5e3,
+    g.ACTIVE_NOTIFY_INTERVAL = 1e4,
+    g.ACTIVE_SENDER_CHECK_INTERVAL = 500,
+    g.ACTIVE_TIMEOUT = 6e4;
+    var h, f, v, o = g;
+    function g(e, t, o, n, i) {
+        void 0 === o && (o = v.LongPoll),
+        void 0 === n && (n = g.WEBSOCKET_TIMEOUT),
+        void 0 === i && (i = !0),
+        this.receiver = e,
+        this.log = t,
+        this.connectionMethod = o,
+        this.websocketTimeoutMs = n,
+        this.validateSenders = i,
+        this.scanSocket = null,
+        this.inactiveInterval = null,
+        this.announceInterval = null,
+        this.websocketScanStopTimer = null,
+        this.listeners = ((o = {})[h.update] = [],
+        o[h.connectToSender] = [],
+        o[h.scanStart] = [],
+        o[h.scanStop] = [],
+        o),
+        this.activeSendersOnNetwork = {},
+        this.senderActiveChecks = {},
+        this.network = new s.XhrNetwork(t),
+        this.log.debug("Receiver: " + JSON.stringify(e)),
+        this.senderStore = new r.SenderStore(t);
+        n = "?deviceId=".concat(encodeURIComponent(this.receiver.deviceId), "&label=").concat(encodeURIComponent(this.receiver.label), "&icon=").concat(encodeURIComponent(this.receiver.icon));
+        this.wssUrl = "wss://wvcconnect-wss.webvideocaster.com/v1".concat(n),
+        this.wsUrl = "ws://wvcconnect-ws.webvideocaster.com:9000/v1".concat(n),
+        this.longPollWsUrl = "http://wvcconnect-ws.webvideocaster.com:9001/v1/".concat(c.IdUtil.generateId(), "/longPoll"),
+        this.currentWebsocketUrl = this.wssUrl,
+        window.WebSocket ? 0 == (null == (i = window.deviceInfo) ? void 0 : i.wss) && (this.currentWebsocketUrl = this.wsUrl) : this.currentWebsocketUrl = this.longPollWsUrl
+    }
+    t.SendersAvailable = o
+}),
+define("receiver-common/MessageSender", ["require", "exports", "receiver-common/IdUtil"], function(e, t, s) {
+    "use strict";
+    Object.defineProperty(t, "__esModule", {
+        value: !0
+    }),
+    t.MessageSender = t.DisconnectReasonType = t.ErrorType = t.MediaType = t.StateType = void 0,
+    (i = n = n || {}).State = "state",
+    i.Position = "position",
+    i.Media = "media",
+    i.Error = "error",
+    i.Volume = "volume",
+    i.Log = "log",
+    i.Disconnect = "disconnect",
+    i.DeviceInfo = "deviceInfo",
+    i.RequestConnection = "request-connection",
+    i.PlayNext = "playNext",
+    i.PlayPrevious = "playPrevious",
+    (i = t.StateType || (t.StateType = {})).Error = "error",
+    i.Loading = "loading",
+    i.Loaded = "loaded",
+    i.Playing = "playing",
+    i.Buffering = "buffering",
+    i.Paused = "paused",
+    i.Idle = "idle",
+    (i = t.MediaType || (t.MediaType = {})).None = "none",
+    i.Video = "video",
+    i.Audio = "audio",
+    i.Images = "image",
+    (i = c = t.ErrorType || (t.ErrorType = {})).Polling = "polling",
+    i.CommandProcess = "commandProcess",
+    i.Sending = "sending",
+    i.VideoPlayback = "videoPlayback",
+    i.AudioPlayback = "audioPlayback",
+    i.ImageLoad = "image",
+    i.VideoAutoplay = "videoAutoplay",
+    i.Fullscreen = "fullscreen",
+    i.SubtitleLoad = "subtitleLoad",
+    (i = o = t.DisconnectReasonType || (t.DisconnectReasonType = {})).WindowClose = "windowClose",
+    i.App = "app",
+    Object.defineProperty(r.prototype, "currentMedia", {
+        get: function() {
+            return this._currentMedia
+        },
+        set: function(e) {
+            this._currentMedia = e
+        },
+        enumerable: !1,
+        configurable: !0
+    }),
+    Object.defineProperty(r.prototype, "clientId", {
+        get: function() {
+            return this._clientId
+        },
+        enumerable: !1,
+        configurable: !0
+    }),
+    r.prototype.sendLog = function(e, t) {
+        this.sendToRemoteDevice(n.Log, {
+            media: this.currentMedia,
+            level: e,
+            message: t
+        }, !1)
+    }
+    ,
+    r.prototype.sendDisconnect = function() {
+        this.sendToRemoteDevice(n.Disconnect, {
+            reason: o.WindowClose
+        })
+    }
+    ,
+    r.prototype.sendPositionNotification = function(e, t) {
+        this.sendToRemoteDevice(n.Position, {
+            media: this.currentMedia,
+            position: e,
+            duration: t
+        })
+    }
+    ,
+    r.prototype.sendLastState = function() {
+        this.lastState && this.sendToRemoteDevice(n.State, this.lastState)
+    }
+    ,
+    r.prototype.sendStateNotification = function(e) {
+        this.lastState = {
+            media: this.currentMedia,
+            state: e
+        },
+        this.sendToRemoteDevice(n.State, this.lastState)
+    }
+    ,
+    r.prototype.sendMediaMessage = function(e) {
+        e.media = this.currentMedia,
+        this.sendToRemoteDevice(n.Media, e)
+    }
+    ,
+    r.prototype.sendError = function(e, t, o) {
+        this.sendToRemoteDevice(n.Error, {
+            media: this.currentMedia,
+            type: e,
+            code: t,
+            message: o
+        })
+    }
+    ,
+    r.prototype.sendVolume = function(e) {
+        this.sendToRemoteDevice(n.Volume, {
+            media: this.currentMedia,
+            volume: e
+        })
+    }
+    ,
+    r.prototype.sendDeviceInfo = function() {
+        var t = this;
+        this.deviceInfo(function(e) {
+            t.sendToRemoteDevice(n.DeviceInfo, e)
+        })
+    }
+    ,
+    r.prototype.sendRequestConnection = function(e, t) {
+        (t = null != t ? t : this.baseUrl) && e ? this.sendToRemoteDevice(n.RequestConnection, {
+            media: null,
+            receiver: e
+        }, !0, t) : this.sendError(c.Sending, 1, "No base url for requesting connection for receiver ".concat(JSON.stringify(e)))
+    }
+    ,
+    r.prototype.sendPlayNext = function() {
+        this.sendToRemoteDevice(n.PlayNext, {
+            media: this.currentMedia
+        })
+    }
+    ,
+    r.prototype.sendPlayPrevious = function() {
+        this.sendToRemoteDevice(n.PlayPrevious, {
+            media: this.currentMedia
+        })
+    }
+    ;
+    var n, c, o, i = r;
+    function r(e, t, o, n, i, r) {
+        this.baseUrl = e,
+        this.storage = t,
+        this.network = o,
+        this.log = n,
+        this.deviceInfo = i,
+        this.sendToRemoteDevice = function(e, t, n, o) {
+            var i = this
+              , r = (void 0 === n && (n = !0),
+            (null != o ? o : this.baseUrl) + "/" + e);
+            n && this.log.info("Sending POST data to Remote Device: ".concat(r)),
+            n && this.log.info(t);
+            try {
+                this.network.post(r, {
+                    "Content-Type": "application/json;charset=utf-8",
+                    "Client-Id": "".concat(this.clientId)
+                }, JSON.stringify(t), 1e4, function(e, t, o) {
+                    200 <= e && e < 400 ? n && i.log.debug("success: " + r) : (t = t && 0 < t.length ? t : "Unable to connect",
+                    n && i.log.error("failure: " + r),
+                    n && i.log.error("code: ".concat(e, ", message: ").concat(t)))
+                })
+            } catch (e) {
+                this.sendError(c.Sending, 1, e.message || "Exception sending message to server"),
+                n && this.log.error("send xhr exception: " + e)
+            }
+        }
+        ,
+        this._clientId = null != r ? r : t.get("deviceId"),
+        this._clientId || (this._clientId = s.IdUtil.generateId()),
+        t.set("deviceId", this._clientId, 90)
+    }
+    t.MessageSender = i
+}),
+define("receiver-common/ConnectionStatus", ["require", "exports"], function(e, t) {
+    "use strict";
+    Object.defineProperty(t, "__esModule", {
+        value: !0
+    }),
+    t.ConnectionStatus = void 0,
+    (t = t.ConnectionStatus || (t.ConnectionStatus = {})).Connected = "connected",
+    t.Busy = "busy",
+    t.Disconnected = "disconnected"
+}),
+define("receiver-common/CommandReceiver", ["require", "exports", "receiver-common/MessageSender", "receiver-common/ConnectionStatus", "receiver-common/DiscoveryUtil"], function(e, t, s, o, n) {
+    "use strict";
+    Object.defineProperty(t, "__esModule", {
+        value: !0
+    }),
+    t.CommandReceiver = t.CommandType = void 0,
+    (r = i = t.CommandType || (t.CommandType = {})).loadMedia = "loadMedia",
+    r.getMedia = "getMedia",
+    r.stop = "stop",
+    r.logLevelSet = "setLogLevel",
+    r.getDeviceInfo = "getDeviceInfo",
+    r.pause = "pause",
+    r.positionSet = "setPosition",
+    r.positionGet = "sendPosition",
+    r.play = "play",
+    r.speedSet = "setSpeed",
+    r.volumeGet = "getVolume",
+    r.volumeSet = "setVolume",
+    r.audioTrackSet = "setAudioTrack",
+    r.textTrackSet = "setTextTrack",
+    r.subtitlesSet = "setSubtitles",
+    r.subtitlesStop = "stopSubtitles",
+    r.subtitlesStyleSet = "setSubtitleStyle",
+    r.rotateCW = "rotateClockwise",
+    r.rotateCCW = "rotateCounterClockwise",
+    r.rotateRestore = "rotateRestore",
+    r.zoom = "zoom",
+    r.zoomRestore = "restoreZoom",
+    r.disconnect = "disconnect",
+    Object.defineProperty(c.prototype, "polling", {
+        get: function() {
+            return this._polling
+        },
+        enumerable: !1,
+        configurable: !0
+    }),
+    Object.defineProperty(c.prototype, "player", {
+        get: function() {
+            return this.currentPlayer
+        },
+        enumerable: !1,
+        configurable: !0
+    }),
+    c.prototype.startLongPoll = function(e, t) {
+        this._polling = !0,
+        this.baseUrl = e,
+        this.receiver = null != t ? t : this.receiver,
+        this.startLongPollInterval()
+    }
+    ,
+    c.prototype.startLongPollInterval = function() {
+        var o = this;
+        this.longPollInterval && clearInterval(this.longPollInterval),
+        this.longPollInterval = setInterval(function() {
+            var e, t;
+            !o.pendingPoll && o.baseUrl && (e = o.baseUrl,
+            o.needsDiscoveryCheck ? (t = o.getHostAndPort(e)) ? (t = "http://".concat(t.hostname, ":").concat(t.port, "/web-receiver/"),
+            o.pendingPoll = n.DiscoveryUtil.checkXhrAddress(t, function() {
+                return o.longPoll(e)
+            }, function() {
+                return o.sleep(1e3)
+            })) : (o.log.error("Unable to recognize base url"),
+            o.sleep(5e3)) : o.longPoll(e))
+        }, 200)
+    }
+    ,
+    c.prototype.longPoll = function(n) {
+        var e, t, i = this, r = n + "/longPoll";
+        if (this.polling && n == this.baseUrl) {
+            this.cancelPending();
+            try {
+                var o = this.receiver ? JSON.stringify({
+                    receiver: this.receiver
+                }) : "";
+                this.pendingPoll = this.network.post(r, {
+                    "Client-Id": "".concat(null != (t = null == (e = this.receiver) ? void 0 : e.deviceId) ? t : this.sender.clientId),
+                    "Content-Type": "application/json;charset=UTF-8"
+                }, o, 6e4, function(e, t, o) {
+                    i.pendingPoll = null;
+                    var o = o || "{}";
+                    if (200 <= e && e < 400) {
+                        i.log.debug("success: " + r),
+                        i.log.debug(o),
+                        i.failureCount = 0,
+                        i.needsDiscoveryCheck = !1;
+                        try {
+                            i.processCommand(JSON.parse(o))
+                        } catch (t) {
+                            i.sender.sendError(s.ErrorType.CommandProcess, 1003, t.message || "Exception processing command"),
+                            i.log.error("Failed to process command: " + t.message)
+                        }
+                        i.pendingPoll = null
+                    } else
+                        409 == e ? (i.busy(),
+                        i.shouldSendMedia = !0,
+                        i.recoverTimeout && clearTimeout(i.recoverTimeout),
+                        i.recoverTimeout = null,
+                        i.needsDiscoveryCheck = !1,
+                        i.sleep(3e3)) : (i.disconnected(),
+                        i.shouldSendMedia = !0,
+                        o = t && 0 < t.length ? t : "Unable to connect",
+                        i.failureCount++,
+                        i.log.debug("failure: " + r),
+                        i.log.info("code: ".concat(e, ", message: ").concat(o, ", failure count: ").concat(i.failureCount)),
+                        i.recoverTimeout && clearTimeout(i.recoverTimeout),
+                        i.recoverTimeout = null,
+                        o = 503 == e ? 2e3 : 1e3,
+                        (!e || e <= 0) && (i.log.debug("Device discovery confirmation needed because there wasn't a good response from ".concat(n, ": ").concat(e)),
+                        i.needsDiscoveryCheck = !0),
+                        i.sleep(o))
+                }, function() {
+                    i.log.debug("Long poll connected to ".concat(r)),
+                    i.connected(),
+                    i.recoverTimeout && clearTimeout(i.recoverTimeout),
+                    i.recoverTimeout = window.setTimeout(function() {
+                        i.currentPlayer && i.shouldSendMedia && (i.log.info("Automatically sending active media to new connection (could be new client, or recovering from network outage)"),
+                        i.currentPlayer.getMedia(),
+                        i.sender.sendDeviceInfo(),
+                        i.shouldSendMedia = !1)
+                    }, 1e3)
+                })
+            } catch (e) {
+                this.sender.sendError(s.ErrorType.CommandProcess, 1002, e.message || "Exception while polling"),
+                this.log.error("receive xhr exception: " + e),
+                this.sleep(5e3)
+            }
+        }
+    }
+    ,
+    c.prototype.cancelPoll = function() {
+        this.log.info("Stopping long poll"),
+        this._polling = !1,
+        this.cancelPending(),
+        this.longPollInterval && (clearInterval(this.longPollInterval),
+        this.longPollInterval = null),
+        this.statusHandler(o.ConnectionStatus.Disconnected)
+    }
+    ,
+    c.prototype.cancelPending = function() {
+        this.pendingPoll && (this.pendingPoll.cancel(),
+        this.pendingPoll = null)
+    }
+    ,
+    c.prototype.processCommand = function(e) {
+        this.commandHandler(e);
+        var t = i[e.cmd];
+        if (t == i.disconnect)
+            this.disconnected(),
+            this.cancelPoll();
+        else if (t == i.getDeviceInfo)
+            this.sender.sendDeviceInfo();
+        else if (t == i.loadMedia) {
+            this.currentPlayer && this.currentPlayer.reset();
+            var o = e;
+            if (this.sender.currentMedia = o.url,
+            this.currentPlayer = this.players[o.media],
+            null == this.currentPlayer)
+                return;
+            window.korz && o.corsServer && (window.korz.router = o.corsServer,
+            o.corsOn ? (this.log.debug("Korz on"),
+            window.korz.ON()) : (this.log.debug("Korz off"),
+            window.korz.OFF()))
+        } else if (t == i.getMedia && null == this.currentPlayer)
+            this.sender.sendMediaMessage({
+                media: null,
+                type: s.MediaType.None,
+                url: null,
+                mimeType: null,
+                width: 0,
+                height: 0,
+                poster: null,
+                audioTracks: [],
+                headers: null,
+                textTracks: []
+            });
+        else if (t == i.logLevelSet)
+            return this.log.logLevel = (o = e).level,
+            void (this.log.logType = o.type);
+        t && this.currentPlayer && this.currentPlayer[t] && this.currentPlayer[t](e)
+    }
+    ,
+    c.prototype.connected = function() {
+        var e = this;
+        this.connectedTimeout && clearTimeout(this.connectedTimeout),
+        this.connectedTimeout = window.setTimeout(function() {
+            e.disconnectedTimeout && clearTimeout(e.disconnectedTimeout),
+            e.disconnectedTimeout = null,
+            e.statusHandler(o.ConnectionStatus.Connected)
+        }, 1e3)
+    }
+    ,
+    c.prototype.disconnected = function() {
+        var e = this;
+        this.connectedTimeout && clearTimeout(this.connectedTimeout),
+        null == this.disconnectedTimeout && (this.disconnectedTimeout = window.setTimeout(function() {
+            e.statusHandler(o.ConnectionStatus.Disconnected),
+            e.disconnectedTimeout = null
+        }, 5e3))
+    }
+    ,
+    c.prototype.busy = function() {
+        this.connectedTimeout && clearTimeout(this.connectedTimeout),
+        this.connectedTimeout && clearTimeout(this.connectedTimeout),
+        this.connectedTimeout = null,
+        this.disconnectedTimeout = null,
+        this.statusHandler(o.ConnectionStatus.Busy)
+    }
+    ,
+    c.prototype.sleep = function(e) {
+        var t = this
+          , o = setTimeout(function() {
+            t.pendingPoll = null
+        }, e);
+        this.pendingPoll = {
+            cancel: function() {
+                return clearTimeout(o)
+            }
+        }
+    }
+    ,
+    c.prototype.getHostAndPort = function(e) {
+        e = e.match(/^https?:\/\/([^:/?#]+)(?::(\d{1,5}))?/i);
+        return e && 2 <= e.length ? {
+            hostname: e[1],
+            port: e[2] || "30001"
+        } : null
+    }
+    ;
+    var i, r = c;
+    function c(e, t, o, n, i, r) {
+        this.players = e,
+        this.sender = t,
+        this.network = o,
+        this.statusHandler = n,
+        this.commandHandler = i,
+        this.log = r,
+        this.failureCount = 0,
+        this.shouldSendMedia = !0,
+        this.disconnectedTimeout = null,
+        this.connectedTimeout = null,
+        this.recoverTimeout = null,
+        this.pendingPoll = null,
+        this._polling = !1,
+        this.needsDiscoveryCheck = !0,
+        this.longPollInterval = null,
+        this.receiver = null
+    }
+    t.CommandReceiver = r
+}),
+define("receiver-common/MediaPlayer", ["require", "exports"], function(e, t) {
+    "use strict";
+    Object.defineProperty(t, "__esModule", {
+        value: !0
+    })
+}),
+define("web-receiver/src/IBAudio", ["require", "exports", "web-receiver/src/logger", "receiver-common/MessageSender"], function(e, t, n, i) {
+    "use strict";
+    function o(t) {
+        var o = this;
+        this.sender = t,
+        this.element = document.getElementById("audio"),
+        this.poster = document.getElementById("audio-poster"),
+        this.element.addEventListener("error", function() {
+            var e = o.element.error;
+            t.sendError(i.ErrorType.AudioPlayback, e && e.code, e && e.message),
+            o.type = null,
+            o.sendPosition()
+        }),
+        this.element.addEventListener("loadeddata", function() {
+            t.sendStateNotification(i.StateType.Loaded),
+            o.sendPosition()
+        }),
+        this.element.addEventListener("playing", function() {
+            t.sendStateNotification(i.StateType.Playing),
+            o.sendPosition()
+        }),
+        this.element.addEventListener("pause", function() {
+            t.sendStateNotification(i.StateType.Paused),
+            o.sendPosition()
+        }),
+        this.element.addEventListener("ended", function() {
+            t.sendStateNotification(i.StateType.Idle),
+            o.type = null,
+            o.sendPosition()
+        }),
+        this.element.addEventListener("timeupdate", function() {
+            var e = Math.floor(o.element.currentTime);
+            e != o.currentPosition && e % 60 == 0 && (o.currentPosition = e,
+            o.sendPosition())
+        }),
+        this.element.addEventListener("volumechange", function() {
+            o.getVolume()
+        })
+    }
+    Object.defineProperty(t, "__esModule", {
+        value: !0
+    }),
+    t.IBAudio = void 0,
+    o.prototype.loadMedia = function(t) {
+        var o = this;
+        this.showGroup(),
+        n.log.info("Loading audio: " + t.url),
+        t.poster ? (this.poster.classList.remove("hidden"),
+        this.poster.src = t.poster) : (this.poster.classList.add("hidden"),
+        this.poster.src = ""),
+        this.loadedListener && this.element.removeEventListener("loadeddata", this.loadedListener),
+        this.loadedListener = function(e) {
+            n.log.info("Setting initial position to: " + t.position),
+            o.element.currentTime = t.position,
+            o.element.play(),
+            o.sendPosition()
+        }
+        ,
+        this.sender.sendStateNotification(i.StateType.Loading),
+        this.element.addEventListener("loadeddata", this.loadedListener, !1),
+        this.element.src = t.url,
+        this.element.load(),
+        this.type = t.mimeType
+    }
+    ,
+    o.prototype.getMedia = function() {
+        var e = {
+            media: this.element.currentSrc,
+            type: i.MediaType.Audio,
+            url: this.element.currentSrc,
+            mimeType: this.type,
+            width: 0,
+            height: 0,
+            poster: "" == this.poster.src ? null : this.poster.src,
+            audioTracks: [],
+            textTracks: [],
+            headers: {}
+        };
+        this.sender.sendLastState(),
+        this.sender.sendMediaMessage(e),
+        this.sendPosition()
+    }
+    ,
+    o.prototype.play = function() {
+        this.element.play()
+    }
+    ,
+    o.prototype.pause = function() {
+        this.element.pause()
+    }
+    ,
+    o.prototype.stop = function() {
+        this.reset(),
+        this.sender.sendStateNotification(i.StateType.Idle)
+    }
+    ,
+    o.prototype.reset = function() {
+        this.element.removeAttribute("src"),
+        this.element.load(),
+        this.type = null,
+        this.showIdle()
+    }
+    ,
+    o.prototype.setSpeed = function(e) {
+        this.element.playbackRate = e.speed
+    }
+    ,
+    o.prototype.setPosition = function(e) {
+        this.element.currentTime = e.position / 1e3
+    }
+    ,
+    o.prototype.sendPosition = function() {
+        var e = Math.floor(1e3 * this.element.currentTime)
+          , t = Math.ceil(1e3 * this.element.duration);
+        this.sender.sendPositionNotification(e, t)
+    }
+    ,
+    o.prototype.getVolume = function() {
+        this.sender.sendVolume(this.element.volume)
+    }
+    ,
+    o.prototype.setVolume = function(e) {
+        this.element.volume = e.volume
+    }
+    ,
+    o.prototype.showGroup = function() {
+        document.body.classList.remove("ibvideo"),
+        document.body.classList.remove("ibimages"),
+        document.body.classList.add("ibaudio")
+    }
+    ,
+    o.prototype.showIdle = function() {
+        document.body.classList.remove("ibaudio")
+    }
+    ,
+    t.IBAudio = o
+}),
+define("receiver-common/TransformablePlayer", ["require", "exports"], function(e, t) {
+    "use strict";
+    function o() {
+        this.currentRotationStep = 0,
+        this.currentZoomValue = 1
+    }
+    Object.defineProperty(t, "__esModule", {
+        value: !0
+    }),
+    t.TransformablePlayer = void 0,
+    o.prototype.rotateRestore = function() {
+        this.resetRotationStep(),
+        this.applyTransformations()
+    }
+    ,
+    o.prototype.rotateClockwise = function() {
+        this.imageRotate(1)
+    }
+    ,
+    o.prototype.rotateCounterClockwise = function() {
+        this.imageRotate(-1)
+    }
+    ,
+    o.prototype.zoom = function(e) {
+        .01 < this.currentZoomValue + e.scale && (this.currentZoomValue += e.scale,
+        this.applyTransformations())
+    }
+    ,
+    o.prototype.restoreZoom = function() {
+        this.resetZoomValue(),
+        this.applyTransformations()
+    }
+    ,
+    o.prototype.imageRotate = function(e) {
+        this.currentRotationStep += e,
+        this.applyTransformations()
+    }
+    ,
+    o.prototype.resetRotationStep = function() {
+        this.currentRotationStep = 0,
+        this.applyTransformations()
+    }
+    ,
+    o.prototype.resetZoomValue = function() {
+        this.currentZoomValue = 1,
+        this.applyTransformations()
+    }
+    ,
+    o.prototype.applyTransformations = function() {
+        var e = 90 * this.currentRotationStep
+          , t = this.currentZoomValue;
+        this.applyTransformationStyle("rotate(" + e + "deg)" + " " + ("scale(" + t + ", " + t + ")"))
+    }
+    ,
+    t.TransformablePlayer = o
+}),
+define("web-receiver/src/IBImages", ["require", "exports", "web-receiver/src/logger", "receiver-common/TransformablePlayer", "receiver-common/MessageSender"], function(e, t, o, n, i) {
+    "use strict";
+    Object.defineProperty(t, "__esModule", {
+        value: !0
+    }),
+    t.IBImages = void 0;
+    r = n.TransformablePlayer,
+    __extends(s, r),
+    s.prototype.loadMedia = function(e) {
+        this.showGroup(),
+        this.sender.sendStateNotification(i.StateType.Loading),
+        this.image.src = e.url,
+        o.log.info("Loading image:" + this.image.src),
+        r.prototype.resetRotationStep.call(this),
+        r.prototype.resetZoomValue.call(this),
+        r.prototype.applyTransformations.call(this),
+        this.type = e.mimeType
+    }
+    ,
+    s.prototype.getMedia = function() {
+        var e = {
+            media: this.image.src,
+            type: i.MediaType.Images,
+            url: this.image.src,
+            mimeType: this.type,
+            width: this.image.naturalWidth,
+            height: this.image.naturalHeight,
+            poster: null,
+            audioTracks: [],
+            textTracks: [],
+            headers: {}
+        };
+        this.sender.sendLastState(),
+        this.sender.sendMediaMessage(e)
+    }
+    ,
+    s.prototype.stop = function() {
+        this.reset()
+    }
+    ,
+    s.prototype.reset = function() {
+        this.type = null,
+        this.showIdle()
+    }
+    ,
+    s.prototype.applyTransformationStyle = function(e) {
+        var t = document.getElementById("image");
+        t ? t.style.transform = e : o.log.warn("image was not found")
+    }
+    ,
+    s.prototype.showGroup = function() {
+        document.body.classList.remove("ibaudio"),
+        document.body.classList.remove("ibvideo"),
+        document.body.classList.add("ibimages")
+    }
+    ,
+    s.prototype.showIdle = function() {
+        document.body.classList.remove("ibimages")
+    }
+    ;
+    var r, n = s;
+    function s(e) {
+        var t = r.call(this) || this;
+        return t.sender = e,
+        t.image = document.getElementById("image"),
+        t.image.addEventListener("error", function(e) {
+            t.sender.sendError(i.ErrorType.ImageLoad, 1004, e.message || "Image failed to load"),
+            t.type = null
+        }),
+        t.image.addEventListener("load", function(e) {
+            t.sender.sendStateNotification(i.StateType.Playing)
+        }),
+        t
+    }
+    t.IBImages = n
+}),
+define("web-receiver/src/IBVideo", ["require", "exports", "web-receiver/src/logger", "receiver-common/TransformablePlayer", "receiver-common/MessageSender", "receiver-common/CommandReceiver"], function(e, t, a, o, r, n) {
+    "use strict";
+    Object.defineProperty(t, "__esModule", {
+        value: !0
+    }),
+    t.IBVideo = void 0;
+    i = o.TransformablePlayer,
+    __extends(s, i),
+    Object.defineProperty(s.prototype, "player", {
+        get: function() {
+            return this.player_
+        },
+        enumerable: !1,
+        configurable: !0
+    }),
+    s.prototype.loadMedia = function(t) {
+        var o = this;
+        this.showGroup(),
+        this.removeSubtitles(),
+        this.attemptFullscreen = !0,
+        this.loadedListener && this.player.off("loadeddata", this.loadedListener),
+        this.loadedListener = function(e) {
+            a.log.info("Setting initial position to: " + t.position),
+            o.setPosition(t),
+            o.player.play(),
+            o.state = r.StateType.Loaded,
+            o.sender.sendStateNotification(o.state),
+            o.sendPosition(),
+            t.subtitle ? (a.log.info("Loading subtitle: " + t.subtitle),
+            o.setSubtitles({
+                cmd: n.CommandType.subtitlesSet,
+                url: t.subtitle
+            })) : o.stopSubtitles()
+        }
+        ,
+        this.player.on("loadeddata", this.loadedListener),
+        this.player.poster(t.poster),
+        this.sender.sendStateNotification(r.StateType.Loading),
+        this.player.src({
+            src: t.url,
+            type: t.mimeType
+        }),
+        i.prototype.resetRotationStep.call(this),
+        i.prototype.resetZoomValue.call(this),
+        i.prototype.applyTransformations.call(this)
+    }
+    ,
+    s.prototype.setAudioTrack = function(e) {
+        for (var t = this.player.audioTracks() || [], o = 0; o < t.length; o++) {
+            var n = t[o]
+              , i = this.getAudioTrackId(n);
+            n.enabled = i == e.track
+        }
+    }
+    ,
+    s.prototype.getMedia = function() {
+        for (var e = this.player.audioTracks() || [], t = [], o = 0; o < e.length; o++) {
+            var n = e[o];
+            t.push({
+                language: n.language,
+                name: n.label,
+                track: this.getAudioTrackId(n),
+                current: n.enabled
+            })
+        }
+        var i = {
+            media: "" == this.player.currentSrc() ? null : this.player.currentSrc(),
+            type: r.MediaType.Video,
+            url: "" == this.player.currentSrc() ? null : this.player.currentSrc(),
+            mimeType: "" == this.player.currentType() ? null : this.player.currentType(),
+            width: this.player.videoWidth && this.player.videoWidth(),
+            height: this.player.videoHeight && this.player.videoHeight(),
+            poster: "" == this.player.poster() ? null : this.player.poster(),
+            audioTracks: t,
+            textTracks: [],
+            headers: {}
+        };
+        this.sender.sendMediaMessage(i),
+        this.sender.sendLastState(),
+        this.sendPosition()
+    }
+    ,
+    s.prototype.getAudioTrackId = function(e) {
+        return "".concat(e.id, ":").concat(e.language, ":").concat(e.label)
+    }
+    ,
+    s.prototype.play = function() {
+        this.player.play()
+    }
+    ,
+    s.prototype.pause = function() {
+        this.player.pause()
+    }
+    ,
+    s.prototype.stop = function() {
+        this.reset(),
+        this.sender.sendStateNotification(r.StateType.Idle)
+    }
+    ,
+    s.prototype.reset = function() {
+        this.sender.currentMedia = "",
+        this.player.reset && this.player.reset(),
+        this.showIdle()
+    }
+    ,
+    s.prototype.setPosition = function(e) {
+        this.player.currentTime(e.position / 1e3)
+    }
+    ,
+    s.prototype.setSpeed = function(e) {
+        this.player.playbackRate(e.speed)
+    }
+    ,
+    s.prototype.setSubtitles = function(e) {
+        a.log.info("Loading Subtitle: " + e.url);
+        try {
+            this.removeSubtitles(),
+            this.currentVideoSubtitlesTrack = this.player.addRemoteTextTrack({
+                kind: "subtitles",
+                src: e.url,
+                label: "InstantBits",
+                default: !0,
+                mode: "showing"
+            }, !1)
+        } catch (e) {
+            this.sender.sendError(r.ErrorType.SubtitleLoad, 1005, e.message || "Failed to load subtitle file")
+        }
+    }
+    ,
+    s.prototype.stopSubtitles = function() {
+        var e = this.player.textTracks();
+        if (e)
+            for (var t = 0; t < e.length; t++)
+                this.player.removeRemoteTextTrack(e[t])
+    }
+    ,
+    s.prototype.setSubtitleStyle = function(e) {
+        var t = this.getVideoSubtitlesStyleSheet();
+        if (t) {
+            for (a.log.debug("Style Sheet is available and will be modified"); t.rules && 0 < t.rules.length; )
+                t.deleteRule(t.rules.length - 1);
+            var o = e.backgroundOpacity || .75
+              , o = e.backgroundColor ? this.hexToRgba(e.backgroundColor, o) : "black"
+              , n = e.textColor ? this.hexToRgba(e.textColor) : "white"
+              , i = e.textFont || "sans-serif"
+              , r = e.textSize || 1
+              , s = e.textStyle || "normal"
+              , c = e.edgeColor ? this.hexToRgba(e.edgeColor) : n
+              , e = e.edgeStyle || "normal"
+              , o = "background-color: " + o + " !important;color: " + n + " !important;font: " + s + " " + new String(Math.round(100 * r)) + "% " + i + " !important;"
+              , n = ("shadow" == e && "text-shadow: ".concat(c, " 1px 0px 10px !important;"),
+            "outline" == e && "text-shadow: -1px -1px 0 ".concat(c, ", 1px -1px 0 ").concat(c, ", -1px 1px 0 ").concat(c, ", 1px 1px 0 ").concat(c, " !important;"),
+            ".video-js .vjs-text-track-display > div > div > div {" + o + "}\n")
+              , s = "::cue {" + o + "}\n";
+            a.log.debug("Inserting Rule: " + n),
+            t.insertRule(n, 0),
+            a.log.debug("Inserting Rule: " + s),
+            t.insertRule(s, 0)
+        } else
+            a.log.warn("Style Sheet is NOT available")
+    }
+    ,
+    s.prototype.hexToRgba = function(e, t) {
+        var o = 255
+          , n = 255
+          , i = 255
+          , r = 1;
+        return 2 <= (e = 0 == e.indexOf("#") ? e.substring(1) : e).length && (o = parseInt(e.substring(0, 2), 16)),
+        4 <= e.length && (n = parseInt(e.substring(2, 4), 16)),
+        6 <= e.length && (i = parseInt(e.substring(4, 6), 16)),
+        null != t && void 0 !== t ? r = t : 8 <= e.length && (r = parseInt(e.substring(6, 8), 16) / 255),
+        "rgba(".concat(o, ", ").concat(n, ", ").concat(i, ", ").concat(r, ")")
+    }
+    ,
+    s.prototype.removeSubtitles = function() {
+        this.currentVideoSubtitlesTrack && (this.player.removeRemoteTextTrack(this.currentVideoSubtitlesTrack),
+        this.currentVideoSubtitlesTrack = null,
+        a.log.debug("Subtitles Track was removed"))
+    }
+    ,
+    s.prototype.sendPosition = function() {
+        var e = Math.floor(1e3 * this.player.currentTime())
+          , t = Math.ceil(1e3 * this.player.duration());
+        this.sender.sendPositionNotification(e, t)
+    }
+    ,
+    s.prototype.getVolume = function() {
+        this.sender.sendVolume(this.player.volume())
+    }
+    ,
+    s.prototype.setVolume = function(e) {
+        this.player.volume(e.volume)
+    }
+    ,
+    s.prototype.applyTransformationStyle = function(e) {
+        var t = "video-group"
+          , o = document.getElementById(t);
+        o ? o.style.transform = e : a.log.warn(t + " was not found")
+    }
+    ,
+    s.prototype.goFullScreen = function() {
+        var e = this;
+        window.Promise && "function" == typeof this.player.el().requestFullscreen ? this.player.el().requestFullscreen().then(function() {
+            e.player.isFullscreen(!0),
+            e.attemptFullscreen = !1
+        }).catch(function() {
+            return e.sendFullscreenError()
+        }) : (this.player.requestFullscreen(),
+        this.player.supportsFullScreen() || this.sendFullscreenError())
+    }
+    ,
+    s.prototype.sendFullscreenError = function() {
+        var e = this;
+        setTimeout(function() {
+            !e.player.isFullscreen() && e.attemptFullscreen && e.sender.sendError(r.ErrorType.Fullscreen, 1001, "Automatic full screen may not be supported"),
+            e.attemptFullscreen = !1
+        }, 500)
+    }
+    ,
+    s.prototype.showGroup = function() {
+        document.body.classList.remove("ibaudio"),
+        document.body.classList.remove("ibimages"),
+        document.body.classList.add("ibvideo")
+    }
+    ,
+    s.prototype.showIdle = function() {
+        document.body.classList.remove("ibvideo")
+    }
+    ,
+    s.prototype.getVideoSubtitlesStyleSheet = function() {
+        for (var e = 0; e < document.styleSheets.length; e++) {
+            var t = document.styleSheets[e];
+            if ("subtitles" == t.title)
+                return a.log.debug("Subtitles Style Sheet was found"),
+                t
+        }
+        return a.log.debug("Subtitles Style Sheet was NOT found"),
+        null
+    }
+    ;
+    var i, o = s;
+    function s(t) {
+        var o = i.call(this) || this
+          , e = (o.sender = t,
+        o.currentVideoSubtitlesTrack = null,
+        o.hasClicked = !1,
+        document.getElementById("video-group"));
+        e && e.addEventListener("click", function() {
+            !o.hasClicked && o.player && (o.hasClicked = !0,
+            o.goFullScreen())
+        });
+        try {
+            var n = {
+                html5: {
+              hls: {
+      overrideNative: overrideNative
+    },
+    nativeVideoTracks: !overrideNative,
+    nativeAudioTracks: !overrideNative,
+    nativeTextTracks: !overrideNative
+  }
+			  }
+            };
+            a.log.debug("initializing videojs with options " + JSON.stringify(n)),
+            o.player_ = window.videojs(e, n),
+            o.player.addClass("vjs-ib")
+        } catch (e) {
+            a.log.error("video player init exception: " + e)
+        }
+        o.player.on("error", function() {
+            o.sendPosition();
+            var e = o.player.error();
+            t.sendError(r.ErrorType.VideoPlayback, e && e.code, e && e.message)
+        }),
+        o.player.on("playing", function() {
+            o.sendPosition(),
+            t.sendStateNotification(r.StateType.Playing),
+            o.attemptFullscreen && o.goFullScreen()
+        }),
+        o.player.on("stalled", function() {
+            o.sendPosition(),
+            o.player.currentSrc() ? t.sendStateNotification(r.StateType.Buffering) : t.sendStateNotification(r.StateType.Idle)
+        }),
+        o.player.on("pause", function() {
+            o.sendPosition(),
+            t.sendStateNotification(r.StateType.Paused)
+        }),
+        o.player.on("ended", function() {
+            o.sendPosition(),
+            o.stop()
+        }),
+        o.player.on("timeupdate", function() {
+            var e = Math.floor(o.player.currentTime());
+            e != o.currentPosition && e % 60 == 0 && (o.currentPosition = e,
+            o.sendPosition())
+        }),
+        o.player.on("volumechange", function() {
+            o.getVolume()
+        }),
+        o.player.bigPlayButton.el().addEventListener("click", function() {
+            o.goFullScreen()
+        });
+        e = o.player.audioTracks();
+        return e && e.addEventListener("change", function() {
+            o.getMedia()
+        }),
+        o
+    }
+    t.IBVideo = o
+}),
+define("web-receiver/src/Sniffler", ["require", "exports"], function(e, t) {
+    "use strict";
+    function o() {}
+    Object.defineProperty(t, "__esModule", {
+        value: !0
+    }),
+    t.Sniffler = void 0,
+    Object.defineProperty(o, "isXbox360", {
+        get: function() {
+            return -1 < navigator.userAgent.toLowerCase().indexOf("msie 9") && -1 < navigator.userAgent.toLowerCase().indexOf("xbox")
+        },
+        enumerable: !1,
+        configurable: !0
+    }),
+    Object.defineProperty(o, "isPlaystation4", {
+        get: function() {
+            return -1 < navigator.userAgent.toLowerCase().indexOf("playstation 4")
+        },
+        enumerable: !1,
+        configurable: !0
+    }),
+    t.Sniffler = o
+}),
+define("receiver-common/ElementInjector", ["require", "exports"], function(e, t) {
+    "use strict";
+    function o() {}
+    Object.defineProperty(t, "__esModule", {
+        value: !0
+    }),
+    t.ElementInjector = void 0,
+    o.addScript = function(e, t) {
+        void 0 === t && (t = !1);
+        var o = document.createElement("script");
+        o.type = "text/javascript",
+        o.src = e,
+        o.async = t,
+        document.head.appendChild(o)
+    }
+    ,
+    o.addCss = function(e, t) {
+        void 0 === t && (t = !1);
+        var o = document.createElement("link");
+        o.rel = "stylesheet",
+        o.href = e,
+        t || !document.head.childNodes || 0 == document.head.childNodes.length ? document.head.appendChild(o) : document.head.insertBefore(o, document.head.childNodes[0])
+    }
+    ,
+    t.ElementInjector = o
+}),
+define("web-receiver/src/cookie-storage", ["require", "exports"], function(e, t) {
+    "use strict";
+    function o() {
+        this.cookie = window.Cookies
+    }
+    Object.defineProperty(t, "__esModule", {
+        value: !0
+    }),
+    t.CookieStorage = void 0,
+    o.prototype.get = function(e) {
+        var t;
+        return null == (t = this.cookie) ? void 0 : t.get(e)
+    }
+    ,
+    o.prototype.set = function(e, t, o) {
+        var n;
+        null != (n = this.cookie) && n.set(e, t, {
+            expires: null != o ? o : 90
+        })
+    }
+    ,
+    t.CookieStorage = o
+}),
+define("web-receiver/src/app", ["require", "exports", "receiver-common/MessageSender", "receiver-common/CommandReceiver", "web-receiver/src/IBAudio", "web-receiver/src/IBImages", "web-receiver/src/IBVideo", "receiver-common/ElementInjector", "web-receiver/src/Sniffler", "web-receiver/src/logger", "web-receiver/src/cookie-storage", "receiver-common/XhrNetwork", "receiver-common/MessageSender", "receiver-common/CommandReceiver", "receiver-common/ConnectionStatus", "receiver-common/SearchParams"], function(e, t, y, b, S, T, w, I, k, P, C, E, x, O, L, _) {
+    "use strict";
+    var A;
+    Object.defineProperty(t, "__esModule", {
+        value: !0
+    }),
+    A = function(e) {
+        6 < e && (e = -1 < document.location.href.indexOf("?") ? "&" : "?",
+        document.location.href = document.location.href + e + "o=6")
+    }
+    ,
+    window.DomReady.ready(function() {
+        window.logger = P.log,
+        window.ibDebug && window.ibDebug(),
+        P.log.checkUrl(),
+        P.log.debug("Adding videojs...");
+        var o, e, t, n, i, r = window.define, s = window.require, l = (window.requirejs.onError = function(e) {
+            throw P.log.error(e),
+            e
+        }
+        ,
+        window.vjsVersion || ((c = /[?&]\s*o=\s*([0-9]+)/.exec(document.location.href)) && 1 < c.length ? c[1] : null) || (k.Sniffler.isXbox360 ? 6 : Number.MAX_VALUE || 1e4)), c = (P.log.debug("version=".concat(l)),
+        "7.5.0"), a = null, d = !0, u = !0, p = (4 == l ? (c = "4.12.15",
+        u = d = !(a = ["videojs-media-sources.1.0.0.js", "videojs.hls.0.17.5.min.js"])) : 5 == l ? (c = "5.20.4",
+        a = ["videojs-contrib-hls.5.15.0.min"]) : 6 != l && !k.Sniffler.isXbox360 || (c = "6.13.0",
+        a = ["videojs-http-streaming.1.8.0.min.js"]),
+        "video.".concat(c, ".min.js")), h = "video-js.".concat(c, ".min.css"), h = (P.log.debug("Using videojs version ".concat(c)),
+        I.ElementInjector.addCss(h),
+        function(e) {
+            var t, o, n, i, r, s, c, a;
+            P.log.debug("videojs library loaded"),
+            window.videojs = e,
+            e = l,
+            P.log.debug("Initializing App..."),
+            P.log.info("User Agent: ".concat(navigator.userAgent)),
+            P.log.info("VideoJS: ".concat(window.videojs && window.videojs.VERSION)),
+            o = "http://".concat(window.location.host, "/web-receiver-io"),
+            P.log.debug("Base URL: ".concat(o)),
+            n = new C.CookieStorage,
+            i = new E.XhrNetwork,
+            r = new _.SearchParams(window.location.search),
+            s = r.get("receiver"),
+            r && s && (P.log.debug("Receiver: " + s),
+            null != (t = JSON.parse(s))) && t.deviceId && n.set("deviceId", t.deviceId),
+            c = new y.MessageSender(o,n,i,P.log,function() {
+                return {
+                    media: c.currentMedia,
+                    appVersion: "1.2",
+                    userAgent: navigator.userAgent,
+                    buildVariant: "web-reciever",
+                    device: [],
+                    features: ["SubtitleLine"]
+                }
+            }
+            ,null == t ? void 0 : t.deviceId),
+            r = new w.IBVideo(c),
+            s = new S.IBAudio(c),
+            n = new T.IBImages(c),
+            (a = {})[x.MediaType.Video] = r,
+            a[x.MediaType.Images] = n,
+            a[x.MediaType.Audio] = s,
+            a = new b.CommandReceiver(a,c,i,function(e) {
+                for (var t = 0, o = [L.ConnectionStatus.Disconnected, L.ConnectionStatus.Busy, L.ConnectionStatus.Connected]; t < o.length; t++) {
+                    var n = o[t]
+                      , i = null != (i = null == (i = document.body.className) ? void 0 : i.split(" ")) ? i : [];
+                    n == e && i.indexOf(n) < 0 ? document.body.classList.add(n) : n != e && document.body.classList.remove(n)
+                }
+            }
+            ,function(e) {
+                O.CommandType[e.cmd] == O.CommandType.disconnect && (P.log.info("Disconnect requested"),
+                0 <= (null == (e = document.referrer) ? void 0 : e.indexOf("localhost")) || 0 <= (null == (e = document.referrer) ? void 0 : e.indexOf("127.0.0.1")) ? document.location.href = document.referrer + "?d" : 0 <= (null == (e = document.referrer) ? void 0 : e.indexOf("beta.cast2tv.")) ? document.location.href = "http://beta.cast2tv.io/?d" : document.location.href = "http://www.cast2tv.io/?d")
+            }
+            ,P.log),
+            t && c.sendRequestConnection(t),
+            a.startLongPoll(o, t),
+            i = document.getElementById("idle-ip"),
+            a = document.getElementById("idle-ip-address"),
+            i && a && (i.classList.remove("hidden"),
+            -1 < (o = window.location.host).indexOf(":") && (o = o.substring(0, o.indexOf(":"))),
+            a.innerText = o),
+            r.player || A(e),
+            P.log.debug("App was initialized."),
+            window.ibvideo = r,
+            window.ibaudio = s,
+            window.ibimages = n,
+            window.ibDebugAfter && window.ibDebugAfter()
+        }
+        );
+        if (a && (o = h,
+        h = function(t) {
+            window.videojs = t,
+            r && s && u ? (r("video.js", [], function() {
+                return t
+            }),
+            P.log.debug("loading hls library via amd"),
+            s(a, function(e) {
+                P.log.debug("hls library loaded"),
+                o(t)
+            }, function(e) {
+                P.log.error("hls failed to load"),
+                P.log.error(e),
+                o(t)
+            })) : (P.log.debug("loading hls library via script tag"),
+            I.ElementInjector.addScript(p),
+            o(t))
+        }
+        ),
+        r && s && d)
+            P.log.debug("loading videojs library via amd"),
+            d = [p],
+            t = s,
+            n = h,
+            i = function(e) {
+                P.log.error("Failed to load videojs"),
+                P.log.error(e),
+                A(l)
+            }
+            ,
+            (e = r)("global/window", [], function() {
+                return window
+            }),
+            e("global/document", ["global/window"], function(e) {
+                return e.document
+            }),
+            t(d, function(e) {
+                return n(e)
+            }, function(e) {
+                return i && i(e)
+            });
+        else {
+            P.log.debug("loading videojs library via script tag");
+            for (var f = [p], v = h, g = function() {
+                window.videojs ? v(window.videojs) : (P.log.debug("Waiting for videojs to load..."),
+                setTimeout(g, 1e3))
+            }, m = 0; m < f.length; m++)
+                I.ElementInjector.addScript(f[m]);
+            g()
+        }
+    })
+});
